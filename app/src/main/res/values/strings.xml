@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">pacs-mobile-application</string>
+    <string name="welcome_msg">Welcome to MSA Smart Access System</string>
+    <!-- For Sign Up Page / Activity -->
+    <string name="go_to_sign_in">Already Have an account? Sign In</string>
+    <!-- For Sign In Page / Activity -->
+    <string name="go_to_sign_up">Not having an account? Sign Up</string>
+    <string name="guest">Guest</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="employee_id">Employee ID</string>
+    <string name="ssn">SSN</string>
+    <string name="confirm">Confirm</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+</resources>
