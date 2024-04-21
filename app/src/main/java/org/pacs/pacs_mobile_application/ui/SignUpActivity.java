@@ -55,7 +55,7 @@ public class SignUpActivity extends AppCompatActivity {
         first_name   = findViewById(R.id.first_name);
         last_name    = findViewById(R.id.last_name);
         ssn          = findViewById(R.id.ssn);
-        email        = findViewById(R.id.email);
+        email        = findViewById(R.id.email_signup);
         password     = findViewById(R.id.password);
         confirm      = findViewById(R.id.confirm);
 
@@ -131,8 +131,8 @@ public class SignUpActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
-                    emptyForm();
                     saveData();
+                    emptyForm();
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -152,8 +152,8 @@ public class SignUpActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
-                    emptyForm();
                     saveData();
+                    emptyForm();
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -290,7 +290,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void saveData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Info",MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("email", email.getText().toString());
         editor.putString("user_type", String.valueOf(guestOption));

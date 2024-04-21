@@ -41,14 +41,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         userId = findViewById(R.id.userId);
         fullName = findViewById(R.id.fullName);
-        email_e = findViewById(R.id.email);
+        email_e = findViewById(R.id.email_profile);
         ssn = findViewById(R.id.ssn);
         placeData();
 
     }
 
     private void placeData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Info",MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
         userId.setText(sharedPreferences.getString("userId",""));
         fullName.setText(sharedPreferences.getString("Name",""));
         email_e.setText(sharedPreferences.getString("email",""));

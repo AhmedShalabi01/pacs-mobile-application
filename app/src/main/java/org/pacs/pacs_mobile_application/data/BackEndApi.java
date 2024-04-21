@@ -16,16 +16,16 @@ import retrofit2.http.Path;
 public interface BackEndApi {
 
     @POST("employee/register")
-    public Call<EmployeeAttributesModel> registerEmployee(@Body RegistrationModel registrationModel);
+     Call<EmployeeAttributesModel> registerEmployee(@Body RegistrationModel registrationModel);
     @POST("visitor/register")
-    public Call<VisitorAttributesModel> registerVisitor(@Body RegistrationModel registrationModel);
+     Call<VisitorAttributesModel> registerVisitor(@Body RegistrationModel registrationModel);
     @POST("employee/login")
-    public Call<EmployeeAttributesModel> validateEmployee(@Body LoginModel loginModel);
+     Call<EmployeeAttributesModel> validateEmployee(@Body LoginModel loginModel);
     @POST("visitor/login")
-    public Call<VisitorAttributesModel> validateVisitor(@Body LoginModel loginModel);
+     Call<VisitorAttributesModel> validateVisitor(@Body LoginModel loginModel);
     @GET("employee/find/email/{email}")
-    public Call<UserInfoModel> findEmployeeInfo(@Path("email") String email);
+    Call<UserInfoModel> findEmployeeInfo(@Path("email") String email);
     @GET("visitor/find/email/{email}")
-    public Call<UserInfoModel> findVisitorInfo(@Path("email") String email);
+     Call<UserInfoModel> findVisitorInfo(@Path("email") String email);
 
 }

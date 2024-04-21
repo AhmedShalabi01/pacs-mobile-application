@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        email = findViewById(R.id.email);
+        email = findViewById(R.id.email_login);
         password     = findViewById(R.id.password);
 
         Button sign_in_btn = findViewById(R.id.sign_in_btn);
@@ -93,9 +93,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
+                    saveData();
                     email.setText(null);
                     password.setText(null);
-                    saveData();
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -117,9 +117,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
+                    saveData();
                     email.setText(null);
                     password.setText(null);
-                    saveData();
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -131,6 +131,14 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "Connection Error", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void saveData() {
+        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("email", email.getText().toString());
+        editor.putString("user_type", String.valueOf(guestOption));
+        editor.apply();
     }
 
 
@@ -173,12 +181,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void saveData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Info",MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("email", email.getText().toString());
-        editor.putString("user_type", String.valueOf(guestOption));
-        editor.apply();
-    }
+
 
 }

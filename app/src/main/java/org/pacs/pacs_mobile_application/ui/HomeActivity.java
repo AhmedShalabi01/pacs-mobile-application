@@ -42,7 +42,8 @@ public class HomeActivity extends AppCompatActivity {
         userId = findViewById(R.id.user_id);
         UserName = findViewById(R.id.user_name);
 
-        sharedPreferences = getSharedPreferences("sharedPref_Info",MODE_PRIVATE);
+
+        sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
         if(sharedPreferences.getString("user_type","").equalsIgnoreCase("false")) {
             fetchEmployeeInfo(sharedPreferences.getString("email",""));
         } else {
@@ -100,7 +101,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void saveData(UserInfoModel userInfoModel) {
-        sharedPreferences = getSharedPreferences("sharedPref_Info",MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("userId",userInfoModel.getId());
         editor.putString("Name",userInfoModel.getFirstName()+" "+userInfoModel.getLastName());

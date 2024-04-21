@@ -133,7 +133,7 @@
         </LinearLayout>
 
         <EditText
-            android:id="@+id/email"
+            android:id="@+id/email_signup"
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:layout_margin="5dp"
