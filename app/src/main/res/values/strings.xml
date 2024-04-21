@@ -21,4 +21,9 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_profile">ProfileActivity</string>
+    <string name="profile_page">User Profile</string>
+    <string name="id">ID Number</string>
+    <string name="name">Name</string>
+    <string name="personal_access_card">Personal Access Card</string>
+    <string name="access_card">Access Card</string>
 </resources>

@@ -2,6 +2,7 @@ package org.pacs.pacs_mobile_application.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -50,7 +51,6 @@ public class SignUpActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Hook Edit Text Fields:
         employeeId  = findViewById(R.id.employee_id);
         first_name   = findViewById(R.id.first_name);
         last_name    = findViewById(R.id.last_name);
@@ -59,20 +59,12 @@ public class SignUpActivity extends AppCompatActivity {
         password     = findViewById(R.id.password);
         confirm      = findViewById(R.id.confirm);
 
-        // Hook Sign Up Button:
         Button sign_up_btn = findViewById(R.id.sign_up_btn);
 
-        // Hook Guest Switch:
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch guest = findViewById(R.id.guest);
 
-        // Trigger the click
-        sign_up_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                processFormFields();
-            }
-        });
+        sign_up_btn.setOnClickListener(view -> processFormFields());
         guest.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @SuppressLint("UseCompatLoadingForDrawables")
             @Override
@@ -88,8 +80,6 @@ public class SignUpActivity extends AppCompatActivity {
                     employeeId.setBackground(getResources().getDrawable(R.drawable.input_text_field_styling_switch_off));
 
                 }
-
-
             }
         });
 
@@ -98,6 +88,11 @@ public class SignUpActivity extends AppCompatActivity {
     public void goToLoginAct(View view) {
         Intent moveToLoginActivity = new Intent(SignUpActivity.this, LoginActivity.class);
         startActivity(moveToLoginActivity);
+        finish();
+    }
+    private void goToHomeActivity() {
+        Intent moveToHomeActivity = new Intent(SignUpActivity.this, HomeActivity.class);
+        startActivity(moveToHomeActivity);
         finish();
     }
 
@@ -134,21 +129,15 @@ public class SignUpActivity extends AppCompatActivity {
         BackEndClient.getINSTANCE().registerVisitor(registrationModel).enqueue(new Callback<VisitorAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
-
                 if(response.isSuccessful()) {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
-                    first_name.setText(null);
-                    last_name.setText(null);
-                    ssn.setText(null);
-                    email.setText(null);
-                    password.setText(null);
-                    confirm.setText(null);
+                    emptyForm();
+                    saveData();
+                    goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
                 }
-
             }
-
             @Override
             public void onFailure(@NonNull Call<VisitorAttributesModel> call, @NonNull Throwable t) {
                 Toast.makeText(SignUpActivity.this, "Connection Error", Toast.LENGTH_LONG).show();
@@ -158,26 +147,18 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void registerEmployee(RegistrationModel registrationModel) {
-
         BackEndClient.getINSTANCE().registerEmployee(registrationModel).enqueue(new Callback<EmployeeAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
-
                 if(response.isSuccessful()) {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
-                    employeeId.setText(null);
-                    first_name.setText(null);
-                    last_name.setText(null);
-                    ssn.setText(null);
-                    email.setText(null);
-                    password.setText(null);
-                    confirm.setText(null);
+                    emptyForm();
+                    saveData();
+                    goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
                 }
-
             }
-
             @Override
             public void onFailure(@NonNull Call<EmployeeAttributesModel> call, @NonNull Throwable t) {
                 Toast.makeText(SignUpActivity.this, "Connection Error", Toast.LENGTH_LONG).show();
@@ -286,6 +267,7 @@ public class SignUpActivity extends AppCompatActivity {
             return true;
         }
     }
+
     private void handleErrorResponse(ResponseBody errorBody) {
         Gson gson = new Gson();
         try {
@@ -295,5 +277,23 @@ public class SignUpActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(SignUpActivity.this, "Error parsing error response", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void emptyForm() {
+        employeeId.setText(null);
+        first_name.setText(null);
+        last_name.setText(null);
+        ssn.setText(null);
+        email.setText(null);
+        password.setText(null);
+        confirm.setText(null);
+    }
+
+    private void saveData() {
+        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Info",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("email", email.getText().toString());
+        editor.putString("user_type", String.valueOf(guestOption));
+        editor.apply();
     }
 }

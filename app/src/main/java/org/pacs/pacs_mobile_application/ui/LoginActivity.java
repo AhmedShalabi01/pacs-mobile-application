@@ -2,10 +2,10 @@ package org.pacs.pacs_mobile_application.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -33,7 +33,7 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText  email, password;
+    private EditText email, password;
     private boolean guestOption;
 
     @Override
@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        email        = findViewById(R.id.email);
+        email = findViewById(R.id.email);
         password     = findViewById(R.id.password);
 
         Button sign_in_btn = findViewById(R.id.sign_in_btn);
@@ -55,24 +55,18 @@ public class LoginActivity extends AppCompatActivity {
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch guest = findViewById(R.id.guest);
 
-        // Trigger the click
-        sign_in_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                processFormFields();
-            }
-        });
-        guest.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                guestOption = b;
-            }
-        });
+        sign_in_btn.setOnClickListener(view -> processFormFields());
+        guest.setOnCheckedChangeListener((compoundButton, b) -> guestOption = b);
     }
 
     public void goToSignUpAct(View view) {
         Intent moveToLoginActivity = new Intent(LoginActivity.this, SignUpActivity.class);
         startActivity(moveToLoginActivity);
+        finish();
+    }
+    private void goToHomeActivity() {
+        Intent moveToHomeActivity = new Intent(LoginActivity.this, HomeActivity.class);
+        startActivity(moveToHomeActivity);
         finish();
     }
 
@@ -101,12 +95,13 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
                     email.setText(null);
                     password.setText(null);
+                    saveData();
+                    goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
                 }
 
             }
-
             @Override
             public void onFailure(@NonNull Call<VisitorAttributesModel> call, @NonNull Throwable t) {
                 Toast.makeText(LoginActivity.this, "Connection Error", Toast.LENGTH_LONG).show();
@@ -124,6 +119,8 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
                     email.setText(null);
                     password.setText(null);
+                    saveData();
+                    goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
                 }
@@ -138,17 +135,17 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private boolean validateEmail(){
-        String email_e = email.getText().toString();
+        String email_e = this.email.getText().toString();
         String emailPattern = "[a-zA-z0-9._-]+@[a-z]+\\.+[a-z]+";
 
         if(email_e.isEmpty()){
-            email.setError("Email cannot be empty!");
+            this.email.setError("Email cannot be empty!");
             return false;
         } else if(!email_e.matches(emailPattern)){
-            email.setError("Please enter a valid email");
+            this.email.setError("Please enter a valid email");
             return false;
         } else{
-            email.setError(null);
+            this.email.setError(null);
             return true;
         }
     }
@@ -175,4 +172,13 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this, "Error parsing error response", Toast.LENGTH_LONG).show();
         }
     }
+
+    private void saveData() {
+        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Info",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("email", email.getText().toString());
+        editor.putString("user_type", String.valueOf(guestOption));
+        editor.apply();
+    }
+
 }

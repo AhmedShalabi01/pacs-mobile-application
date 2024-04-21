@@ -3,12 +3,15 @@ package org.pacs.pacs_mobile_application.data;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.LoginModel;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.RegistrationModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.EmployeeAttributesModel;
+import org.pacs.pacs_mobile_application.pojo.responsemodel.UserInfoModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.VisitorAttributesModel;
 
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
 
 public class BackEndClient {
 
@@ -42,6 +45,12 @@ public class BackEndClient {
     }
     public Call<VisitorAttributesModel> validateVisitor(@Body LoginModel loginModel) {
         return backEndApi.validateVisitor(loginModel);
+    }
+    public Call<UserInfoModel> findEmployeeInfo(@Path("email") String email) {
+        return backEndApi.findEmployeeInfo(email);
+    }
+    public Call<UserInfoModel> findVisitorInfo(@Path("email") String email) {
+        return backEndApi.findVisitorInfo(email);
     }
 
 
