@@ -26,4 +26,7 @@
     <string name="name">Name</string>
     <string name="personal_access_card">Personal Access Card</string>
     <string name="access_card">Access Card</string>
+    <string name="profile">Profile</string>
+    <string name="home">Home</string>
+    <string name="history">History</string>
 </resources>
