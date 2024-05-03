@@ -50,4 +50,10 @@ dependencies {
     // Coroutine Lifecycle Scopes
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
+
+
+    compileOnly ("org.projectlombok:lombok:1.18.32")
+    annotationProcessor ("org.projectlombok:lombok:1.18.32")
+
+    implementation("androidx.biometric:biometric:1.1.0")
 }
