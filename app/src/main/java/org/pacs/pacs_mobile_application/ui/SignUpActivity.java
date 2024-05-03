@@ -22,8 +22,8 @@ import com.google.gson.Gson;
 
 import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.data.BackEndClient;
-import org.pacs.pacs_mobile_application.pojo.CryptoManger;
-import org.pacs.pacs_mobile_application.pojo.ValidationPattern;
+import org.pacs.pacs_mobile_application.utils.CryptoManager;
+import org.pacs.pacs_mobile_application.utils.ValidationPattern;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.RegistrationModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.EmployeeAttributesModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.VisitorAttributesModel;
@@ -146,7 +146,7 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
                     saveDataToSharedPreferences();
                     emptyForm();
-                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
+//                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -166,7 +166,7 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
                     saveDataToSharedPreferences();
                     emptyForm();
-                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
+//                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -189,21 +189,21 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void encryptAndSaveAttributesToFile(String attributes) {
-        CryptoManger cryptoManger = new CryptoManger();
-        File file = new File(getFilesDir(), "secret.txt");
-
-        Log.i("AttributeJson",attributes);
-        try {
-            if (!file.exists()) {
-               file.createNewFile();
-            }
-            FileOutputStream streamOutput = new FileOutputStream(file);
-            cryptoManger.encrypt(attributes.getBytes(), streamOutput);
-        } catch (Exception e) {
-            Log.e("error in encryption" , Objects.requireNonNull(e.getMessage()));
-        }
-    }
+//    private void encryptAndSaveAttributesToFile(String attributes) {
+//        CryptoManager cryptoManager = new CryptoManager();
+//        File file = new File(getFilesDir(), "secret.txt");
+//
+//        Log.i("AttributeJson",attributes);
+//        try {
+//            if (!file.exists()) {
+//               file.createNewFile();
+//            }
+//            FileOutputStream streamOutput = new FileOutputStream(file);
+//            cryptoManager.encrypt(attributes.getBytes(), streamOutput);
+//        } catch (Exception e) {
+//            Log.e("error in encryption" , Objects.requireNonNull(e.getMessage()));
+//        }
+//    }
 
 
 

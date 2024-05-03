@@ -4,6 +4,11 @@ import com.google.gson.annotations.SerializedName;
 
 import java.time.LocalDateTime;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+@Data
 public class ErrorBody {
     private LocalDateTime dateTime;
     @SerializedName("status")
@@ -11,27 +16,4 @@ public class ErrorBody {
     @SerializedName("message")
     private String errorMessages;
 
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public void setErrorMessages(String errorMessages) {
-        this.errorMessages = errorMessages;
-    }
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public String getErrorMessages() {
-        return errorMessages;
-    }
 }

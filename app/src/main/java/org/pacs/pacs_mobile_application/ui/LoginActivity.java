@@ -28,15 +28,20 @@ import com.google.gson.Gson;
 
 import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.data.BackEndClient;
-import org.pacs.pacs_mobile_application.pojo.CryptoManger;
-import org.pacs.pacs_mobile_application.pojo.ValidationPattern;
+import org.pacs.pacs_mobile_application.utils.CryptoManager;
+import org.pacs.pacs_mobile_application.utils.ValidationPattern;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.LoginModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.EmployeeAttributesModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.VisitorAttributesModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -68,11 +73,13 @@ public class LoginActivity extends AppCompatActivity {
 
         Button sign_in_btn = findViewById(R.id.sign_in_btn);
 
+
         @SuppressLint("UseSwitchCompatOrMaterialCode")
-        Switch guest = findViewById(R.id.guest);
+        Switch guest_switch = findViewById(R.id.guest);
 
         sign_in_btn.setOnClickListener(view -> processFormFields());
-        guest.setOnCheckedChangeListener((compoundButton, b) -> guestOption = b);
+        guest_switch.setOnCheckedChangeListener((compoundButton, b) -> guestOption = b);
+
 
         Executor executor = ContextCompat.getMainExecutor(this);
         biometricPrompt = new BiometricPrompt(this, executor, createAuthenticationCallback());
@@ -142,7 +149,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-    public void goToSignUpAct(View view) {
+    public void goToSignUpActivity(View view) {
         Intent moveToLoginActivity = new Intent(LoginActivity.this, SignUpActivity.class);
         startActivity(moveToLoginActivity);
         finish();
@@ -154,13 +161,13 @@ public class LoginActivity extends AppCompatActivity {
     }
     public void processFormFields(){
         if (guestOption){
-            if(validateField(email,ValidationPattern.EMAIL) || validateField(password,ValidationPattern.PASSWORD)){
+            if(validateField(email, ValidationPattern.EMAIL) || validateField(password, ValidationPattern.PASSWORD)){
                 return;
             }
             LoginModel loginModel = new LoginModel(email.getText().toString(), password.getText().toString());
             validateVisitor(loginModel);
         } else {
-            if(validateField(email,ValidationPattern.EMAIL) || validateField(password,ValidationPattern.PASSWORD)){
+            if(validateField(email, ValidationPattern.EMAIL) || validateField(password, ValidationPattern.PASSWORD)){
                 return;
             }
             LoginModel loginModel = new LoginModel(email.getText().toString(), password.getText().toString());
@@ -177,7 +184,7 @@ public class LoginActivity extends AppCompatActivity {
                     saveDataToSharedPreferences();
                     email.setText(null);
                     password.setText(null);
-                    encryptAndSaveAttributesToFile(gson.toJson(response.body()).substring(0,239));
+                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -220,7 +227,7 @@ public class LoginActivity extends AppCompatActivity {
     }
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void encryptAndSaveAttributesToFile(String attributes) {
-        CryptoManger cryptoManger = new CryptoManger();
+        CryptoManager cryptoManager = new CryptoManager();
         File file = new File(getFilesDir(), "secret.txt");
 
         try {
@@ -228,16 +235,20 @@ public class LoginActivity extends AppCompatActivity {
                 file.createNewFile();
             }
             FileOutputStream streamOutput = new FileOutputStream(file);
-            cryptoManger.encrypt(attributes.getBytes(), streamOutput);
+            cryptoManager.encrypt(attributes.getBytes(), streamOutput);
         } catch (Exception e) {
-            Log.e("error in encryption" , Objects.requireNonNull(e.getMessage()));
+            Log.e("Error in encryption" , Objects.requireNonNull(e.getMessage()));
         }
     }
+
+
+
+
     private boolean validateField(EditText editText, ValidationPattern pattern) {
         String fieldValue = editText.getText().toString().trim();
 
         if (fieldValue.isEmpty()) {
-            editText.setError(pattern.getErrorMessage());
+            editText.setError("Field can not be empty!");
             return true;
         } else if (!fieldValue.matches(pattern.getRegex())) {
             editText.setError(pattern.getErrorMessage());

@@ -1,4 +1,4 @@
-package org.pacs.pacs_mobile_application.pojo;
+package org.pacs.pacs_mobile_application.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ValidationPattern {
-    ID("^[a-zA-Z0-9]{1,}$","Employee ID cannot be empty!"),
+    ID("^[a-zA-Z0-9]{1,}$","Employee ID not following the standard"),
     FIRST_NAME("^[a-zA-Z]{2,20}$", "First name must include letters only and be between 2 and 20 characters"),
     LAST_NAME("^[a-zA-Z]{2,20}$", "Last name must include letters only and be between 2 and 20 characters"),
     SSN("^\\d{3}-\\d{2}-\\d{4}$", "SSN must be in the format XXX-XX-XXXX"),
