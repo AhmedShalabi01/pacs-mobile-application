@@ -1,4 +1,4 @@
-package org.pacs.pacs_mobile_application;
+package org.pacs.pacs_mobile_application.utils;
 
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
@@ -6,11 +6,12 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import org.pacs.pacs_mobile_application.pojo.CryptoManger;
+import org.pacs.pacs_mobile_application.utils.CryptoManager;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class MyHostApduService extends HostApduService {
 
@@ -20,8 +21,8 @@ public class MyHostApduService extends HostApduService {
         Log.d("HCE", Arrays.toString(commandApdu));
 
 
-        return "Hello".getBytes();
-//        return fetchAttributes().getBytes();
+//        return "Hello".getBytes();
+        return fetchAttributes().getBytes();
     }
 
     @Override
@@ -29,21 +30,18 @@ public class MyHostApduService extends HostApduService {
         Log.d("HCE", "Deactivated: " + reason);
     }
 
+
     private String fetchAttributes() {
-        CryptoManger cryptoManger = new CryptoManger();
-        Gson gson = new Gson();
+        CryptoManager cryptoManager = new CryptoManager();
         File file = new File(getFilesDir(), "secret.txt");
         FileInputStream streamInput;
 
-//        String json = gson.toJson(attributes).substring(0,239);
-
         try {
             streamInput = new FileInputStream(file);
-            byte[] outputDecrypted = cryptoManger.decrypt(streamInput);
+            byte[] outputDecrypted = cryptoManager.decrypt(streamInput);
             return new String(outputDecrypted);
         } catch (Exception e) {
-            Log.e("AttributeJson",e.getMessage());
-            e.printStackTrace();
+            Log.e("Error in decryption", Objects.requireNonNull(e.getMessage()));
         }
         return "Fail";
     }
