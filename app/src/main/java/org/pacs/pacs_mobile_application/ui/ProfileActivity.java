@@ -42,14 +42,31 @@ public class ProfileActivity extends AppCompatActivity {
             return insets;
         });
 
+        initializeViews();
+        placeData();
+        setupBottomNavigationView();
+
+    }
+
+    private void initializeViews() {
         userId = findViewById(R.id.userId);
         fullName = findViewById(R.id.fullName);
         email_e = findViewById(R.id.email_profile);
         ssn = findViewById(R.id.ssn);
-        placeData();
+    }
 
+    private void placeData() {
+        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
+        userId.setText(sharedPreferences.getString("userId",""));
+        fullName.setText(sharedPreferences.getString("Name",""));
+        email_e.setText(sharedPreferences.getString("email",""));
+        ssn.setText(sharedPreferences.getString("ssn",""));
+    }
+
+    private void setupBottomNavigationView() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
         bottomNavigationView.setSelectedItemId(R.id.bottom_profile);
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
@@ -68,14 +85,5 @@ public class ProfileActivity extends AppCompatActivity {
             }
             return false;
         });
-
-    }
-
-    private void placeData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
-        userId.setText(sharedPreferences.getString("userId",""));
-        fullName.setText(sharedPreferences.getString("Name",""));
-        email_e.setText(sharedPreferences.getString("email",""));
-        ssn.setText(sharedPreferences.getString("ssn",""));
     }
 }

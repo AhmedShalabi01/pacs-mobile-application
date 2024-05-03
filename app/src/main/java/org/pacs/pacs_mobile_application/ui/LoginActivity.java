@@ -1,9 +1,13 @@
 package org.pacs.pacs_mobile_application.ui;
 
+import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
+import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +17,9 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -21,10 +28,17 @@ import com.google.gson.Gson;
 
 import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.data.BackEndClient;
+import org.pacs.pacs_mobile_application.pojo.CryptoManger;
+import org.pacs.pacs_mobile_application.pojo.ValidationPattern;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.LoginModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.EmployeeAttributesModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.VisitorAttributesModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Objects;
+import java.util.concurrent.Executor;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -35,6 +49,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText email, password;
     private boolean guestOption;
+    private final Gson gson = new Gson();
+    private BiometricPrompt biometricPrompt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +73,74 @@ public class LoginActivity extends AppCompatActivity {
 
         sign_in_btn.setOnClickListener(view -> processFormFields());
         guest.setOnCheckedChangeListener((compoundButton, b) -> guestOption = b);
+
+        Executor executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(this, executor, createAuthenticationCallback());
     }
+
+    // Method to check if biometric authentication is supported
+    private boolean isBiometricSupported() {
+        BiometricManager manager = BiometricManager.from(this);
+        int canAuthenticate = manager.canAuthenticate(BIOMETRIC_WEAK | BIOMETRIC_STRONG);
+        return canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS;
+    }
+
+    // Method to display a Toast message
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    // Method to configure the biometric prompt dialog
+    private BiometricPrompt.PromptInfo buildBiometricPromptInfo() {
+        return new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric login")
+                .setSubtitle("Log in using your biometric credential")
+                .setNegativeButtonText("Cancel")
+                .build();
+    }
+
+    // Method to handle biometric authentication callbacks
+    private BiometricPrompt.AuthenticationCallback createAuthenticationCallback() {
+        return new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                showToast("Authentication error: " + errString);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                showToast("Authentication succeeded!");
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                showToast("Authentication failed");
+            }
+        };
+    }
+
+    // Method to initiate biometric authentication
+    public void startBiometricAuthentication() {
+        if (!isBiometricSupported()) {
+            Toast.makeText(this, "Biometric authentication is not supported on this device.", Toast.LENGTH_SHORT).show();
+            showToast("Biometric authentication is not supported on this device.");
+            return;
+        }
+
+        BiometricPrompt.PromptInfo promptInfo = buildBiometricPromptInfo();
+        biometricPrompt.authenticate(promptInfo);
+    }
+
+    // Method invoked when the biometric login button is clicked
+    public void onBiometricLoginClicked(View view) {
+        startBiometricAuthentication();
+    }
+
+
+
 
     public void goToSignUpAct(View view) {
         Intent moveToLoginActivity = new Intent(LoginActivity.this, SignUpActivity.class);
@@ -69,38 +152,57 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(moveToHomeActivity);
         finish();
     }
-
     public void processFormFields(){
         if (guestOption){
-            if(!validateEmail() || !validatePassword()){
+            if(validateField(email,ValidationPattern.EMAIL) || validateField(password,ValidationPattern.PASSWORD)){
                 return;
             }
             LoginModel loginModel = new LoginModel(email.getText().toString(), password.getText().toString());
             validateVisitor(loginModel);
         } else {
-            if(!validateEmail() || !validatePassword()){
+            if(validateField(email,ValidationPattern.EMAIL) || validateField(password,ValidationPattern.PASSWORD)){
                 return;
             }
             LoginModel loginModel = new LoginModel(email.getText().toString(), password.getText().toString());
             validateEmployee(loginModel);
         }
     }
+    private void validateEmployee(LoginModel loginModel) {
 
-
+        BackEndClient.getINSTANCE().validateEmployee(loginModel).enqueue(new Callback<EmployeeAttributesModel>() {
+            @Override
+            public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
+                if(response.isSuccessful()) {
+                    Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
+                    saveDataToSharedPreferences();
+                    email.setText(null);
+                    password.setText(null);
+                    encryptAndSaveAttributesToFile(gson.toJson(response.body()).substring(0,239));
+                    goToHomeActivity();
+                } else {
+                    handleErrorResponse(response.errorBody());
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<EmployeeAttributesModel> call, @NonNull Throwable t) {
+                Toast.makeText(LoginActivity.this, "Connection Error", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
     private void validateVisitor(LoginModel loginModel) {
         BackEndClient.getINSTANCE().validateVisitor(loginModel).enqueue(new Callback<VisitorAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
-                    saveData();
+                    saveDataToSharedPreferences();
                     email.setText(null);
                     password.setText(null);
+                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
                 }
-
             }
             @Override
             public void onFailure(@NonNull Call<VisitorAttributesModel> call, @NonNull Throwable t) {
@@ -109,74 +211,47 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
-
-    private void validateEmployee(LoginModel loginModel) {
-
-        BackEndClient.getINSTANCE().validateEmployee(loginModel).enqueue(new Callback<EmployeeAttributesModel>() {
-            @Override
-            public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
-                if(response.isSuccessful()) {
-                    Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
-                    saveData();
-                    email.setText(null);
-                    password.setText(null);
-                    goToHomeActivity();
-                } else {
-                    handleErrorResponse(response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<EmployeeAttributesModel> call, @NonNull Throwable t) {
-                Toast.makeText(LoginActivity.this, "Connection Error", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void saveData() {
+    private void saveDataToSharedPreferences() {
         SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("email", email.getText().toString());
         editor.putString("user_type", String.valueOf(guestOption));
         editor.apply();
     }
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void encryptAndSaveAttributesToFile(String attributes) {
+        CryptoManger cryptoManger = new CryptoManger();
+        File file = new File(getFilesDir(), "secret.txt");
 
-
-    private boolean validateEmail(){
-        String email_e = this.email.getText().toString();
-        String emailPattern = "[a-zA-z0-9._-]+@[a-z]+\\.+[a-z]+";
-
-        if(email_e.isEmpty()){
-            this.email.setError("Email cannot be empty!");
-            return false;
-        } else if(!email_e.matches(emailPattern)){
-            this.email.setError("Please enter a valid email");
-            return false;
-        } else{
-            this.email.setError(null);
-            return true;
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileOutputStream streamOutput = new FileOutputStream(file);
+            cryptoManger.encrypt(attributes.getBytes(), streamOutput);
+        } catch (Exception e) {
+            Log.e("error in encryption" , Objects.requireNonNull(e.getMessage()));
         }
     }
+    private boolean validateField(EditText editText, ValidationPattern pattern) {
+        String fieldValue = editText.getText().toString().trim();
 
-    private boolean validatePassword(){
-        String password_p = password.getText().toString();
-
-        if(password_p.isEmpty()){
-            password.setError("Password cannot be empty!");
-            return false;
-        } else{
-            password.setError(null);
+        if (fieldValue.isEmpty()) {
+            editText.setError(pattern.getErrorMessage());
             return true;
+        } else if (!fieldValue.matches(pattern.getRegex())) {
+            editText.setError(pattern.getErrorMessage());
+            return true;
+        } else {
+            editText.setError(null);
+            return false;
         }
     }
-
     private void handleErrorResponse(ResponseBody errorBody) {
-        Gson gson = new Gson();
         try {
             ErrorBody error = gson.fromJson(errorBody.charStream(), ErrorBody.class);
             Toast.makeText(LoginActivity.this, error.getErrorMessages(), Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(LoginActivity.this, "Error parsing error response", Toast.LENGTH_LONG).show();
         }
     }

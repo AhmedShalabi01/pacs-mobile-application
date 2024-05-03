@@ -28,7 +28,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeActivity extends AppCompatActivity {
-    private TextView userId, UserName;
+    private TextView userId, userName;
     SharedPreferences sharedPreferences;
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -42,42 +42,29 @@ public class HomeActivity extends AppCompatActivity {
             return insets;
         });
 
-        userId = findViewById(R.id.user_id);
-        UserName = findViewById(R.id.user_name);
+        initializeViews();
+        initializeSharedPreferences();
 
+        String userType = sharedPreferences.getString("user_type", "");
+        String email = sharedPreferences.getString("email", "");
 
-        sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
-        if(sharedPreferences.getString("user_type","").equalsIgnoreCase("false")) {
-            fetchEmployeeInfo(sharedPreferences.getString("email",""));
+        if ("false".equalsIgnoreCase(userType)) {
+            fetchEmployeeInfo(email);
         } else {
-            fetchVisitorInfo(sharedPreferences.getString("email",""));
+            fetchVisitorInfo(email);
         }
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
-        bottomNavigationView.setSelectedItemId(R.id.bottom_home);
-
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.bottom_home) {
-                return true;
-            } else if (itemId == R.id.bottom_profile) {
-                startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                finish();
-                return true;
-            } else if (itemId == R.id.bottom_history) {
-                startActivity(new Intent(getApplicationContext(), HistoryActivity.class));
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                finish();
-                return true;
-            }
-
-            return false;
-        });
+        setupBottomNavigationView();
 
     }
 
+    private void initializeViews() {
+        userId = findViewById(R.id.user_id);
+        userName = findViewById(R.id.user_name);
+    }
+    private void initializeSharedPreferences() {
+        sharedPreferences = getSharedPreferences("sharedPref_Information", MODE_PRIVATE);
+    }
     private void fetchEmployeeInfo(String email) {
         BackEndClient.getINSTANCE().findEmployeeInfo(email).enqueue(new Callback<UserInfoModel>() {
             @SuppressLint("SetTextI18n")
@@ -97,7 +84,6 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
-
     private void fetchVisitorInfo(String email) {
         BackEndClient.getINSTANCE().findVisitorInfo(email).enqueue(new Callback<UserInfoModel>() {
             @Override
@@ -122,11 +108,9 @@ public class HomeActivity extends AppCompatActivity {
             ErrorBody error = gson.fromJson(errorBody.charStream(), ErrorBody.class);
             Toast.makeText(HomeActivity.this, error.getErrorMessages(), Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(HomeActivity.this, "Error parsing error response", Toast.LENGTH_LONG).show();
         }
     }
-
     private void saveData(UserInfoModel userInfoModel) {
         sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -138,7 +122,30 @@ public class HomeActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void placeData(UserInfoModel userInfoModel) {
         userId.setText(userInfoModel.getId());
-        UserName.setText(userInfoModel.getFirstName() + " " + userInfoModel.getLastName());
+        userName.setText(userInfoModel.getFirstName() + " " + userInfoModel.getLastName());
     }
+    private void setupBottomNavigationView() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
+        bottomNavigationView.setSelectedItemId(R.id.bottom_home);
 
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.bottom_home) {
+                return true;
+            } else if (itemId == R.id.bottom_profile) {
+                startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                finish();
+                return true;
+            } else if (itemId == R.id.bottom_history) {
+                startActivity(new Intent(getApplicationContext(), HistoryActivity.class));
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                finish();
+                return true;
+            }
+
+            return false;
+        });
+    }
 }

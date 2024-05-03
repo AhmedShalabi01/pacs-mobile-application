@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -22,10 +23,16 @@ import com.google.gson.Gson;
 
 import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.data.BackEndClient;
+import org.pacs.pacs_mobile_application.pojo.CryptoManger;
+import org.pacs.pacs_mobile_application.pojo.ValidationPattern;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.RegistrationModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.EmployeeAttributesModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.VisitorAttributesModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Objects;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -36,7 +43,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private EditText employeeId,first_name, last_name, email,ssn, password, confirm;
     private boolean guestOption;
-
+    private final Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,38 +58,44 @@ public class SignUpActivity extends AppCompatActivity {
             return insets;
         });
 
-        employeeId  = findViewById(R.id.employee_id);
-        first_name   = findViewById(R.id.first_name);
-        last_name    = findViewById(R.id.last_name);
-        ssn          = findViewById(R.id.ssn);
-        email        = findViewById(R.id.email_signup);
-        password     = findViewById(R.id.password);
-        confirm      = findViewById(R.id.confirm);
+        initializeViews();
 
+        setupSignUpButton();
+
+        setupGuestSwitch();
+
+    }
+
+
+    private void initializeViews() {
+        employeeId = findViewById(R.id.employee_id);
+        first_name = findViewById(R.id.first_name);
+        last_name = findViewById(R.id.last_name);
+        ssn = findViewById(R.id.ssn);
+        email = findViewById(R.id.email_signup);
+        password = findViewById(R.id.password);
+        confirm = findViewById(R.id.confirm);
+    }
+
+    private void setupSignUpButton() {
         Button sign_up_btn = findViewById(R.id.sign_up_btn);
+        sign_up_btn.setOnClickListener(view -> processFormFields());
+    }
 
+    private void setupGuestSwitch() {
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch guest = findViewById(R.id.guest);
-
-        sign_up_btn.setOnClickListener(view -> processFormFields());
-        guest.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @SuppressLint("UseCompatLoadingForDrawables")
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    guestOption = true;
-                    employeeId.setEnabled(false);
-                    employeeId.setBackground(getResources().getDrawable(R.drawable.input_text_field_styling_switch_on));
-
-                } else {
-                    guestOption = false;
-                    employeeId.setEnabled(true);
-                    employeeId.setBackground(getResources().getDrawable(R.drawable.input_text_field_styling_switch_off));
-
-                }
-            }
+        guest.setOnCheckedChangeListener((compoundButton, b) -> {
+            guestOption = b;
+            updateGuestSwitchUI(b);
         });
+    }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void updateGuestSwitchUI(boolean isGuest) {
+        employeeId.setEnabled(!isGuest);
+        int backgroundResource = isGuest ? R.drawable.input_text_field_styling_switch_on : R.drawable.input_text_field_styling_switch_off;
+        employeeId.setBackground(getResources().getDrawable(backgroundResource, null));
     }
 
     public void goToLoginAct(View view) {
@@ -98,8 +111,10 @@ public class SignUpActivity extends AppCompatActivity {
 
     public void processFormFields(){
         if (guestOption){
-            if(!validateFirstName() || !validateLastName() ||
-                    !validateEmail() || !validatePasswordAndConfirm() || !validateSsn()){
+            if( validateField(first_name,ValidationPattern.FIRST_NAME) || validateField(last_name,ValidationPattern.LAST_NAME) ||
+                    validateField(ssn,ValidationPattern.SSN) ||
+                    validateField(email,ValidationPattern.EMAIL) || validatePasswordAndConfirm(password,confirm)
+                    ){
                 return;
             }
             RegistrationModel registrationModel = new RegistrationModel(first_name.getText().toString(),
@@ -109,9 +124,9 @@ public class SignUpActivity extends AppCompatActivity {
                     password.getText().toString());
             registerVisitor(registrationModel);
         } else {
-            if(!validateId() || !validateFirstName() ||
-                    !validateLastName() || !validateEmail() ||
-                    !validatePasswordAndConfirm() || !validateSsn()){
+            if( validateField(first_name,ValidationPattern.FIRST_NAME) || validateField(last_name,ValidationPattern.LAST_NAME) ||
+                    validateField(employeeId,ValidationPattern.ID) || validateField(ssn,ValidationPattern.SSN) ||
+                    validateField(email,ValidationPattern.EMAIL) || validatePasswordAndConfirm(password,confirm) ){
                 return;
             }
             RegistrationModel registrationModel = new RegistrationModel(employeeId.getText().toString(),
@@ -124,15 +139,35 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-
+    private void registerEmployee(RegistrationModel registrationModel) {
+        BackEndClient.getINSTANCE().registerEmployee(registrationModel).enqueue(new Callback<EmployeeAttributesModel>() {
+            @Override
+            public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
+                if(response.isSuccessful()) {
+                    Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
+                    saveDataToSharedPreferences();
+                    emptyForm();
+                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
+                    goToHomeActivity();
+                } else {
+                    handleErrorResponse(response.errorBody());
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<EmployeeAttributesModel> call, @NonNull Throwable t) {
+                Toast.makeText(SignUpActivity.this, "Connection Error", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
     private void registerVisitor(RegistrationModel registrationModel) {
         BackEndClient.getINSTANCE().registerVisitor(registrationModel).enqueue(new Callback<VisitorAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
-                    saveData();
+                    saveDataToSharedPreferences();
                     emptyForm();
+                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -146,135 +181,70 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void registerEmployee(RegistrationModel registrationModel) {
-        BackEndClient.getINSTANCE().registerEmployee(registrationModel).enqueue(new Callback<EmployeeAttributesModel>() {
-            @Override
-            public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
-                if(response.isSuccessful()) {
-                    Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
-                    saveData();
-                    emptyForm();
-                    goToHomeActivity();
-                } else {
-                    handleErrorResponse(response.errorBody());
-                }
+    private void saveDataToSharedPreferences() {
+        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("email", email.getText().toString());
+        editor.putString("user_type", String.valueOf(guestOption));
+        editor.apply();
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void encryptAndSaveAttributesToFile(String attributes) {
+        CryptoManger cryptoManger = new CryptoManger();
+        File file = new File(getFilesDir(), "secret.txt");
+
+        Log.i("AttributeJson",attributes);
+        try {
+            if (!file.exists()) {
+               file.createNewFile();
             }
-            @Override
-            public void onFailure(@NonNull Call<EmployeeAttributesModel> call, @NonNull Throwable t) {
-                Toast.makeText(SignUpActivity.this, "Connection Error", Toast.LENGTH_LONG).show();
-            }
-        });
+            FileOutputStream streamOutput = new FileOutputStream(file);
+            cryptoManger.encrypt(attributes.getBytes(), streamOutput);
+        } catch (Exception e) {
+            Log.e("error in encryption" , Objects.requireNonNull(e.getMessage()));
+        }
     }
-    private boolean validateId(){
-        String employee_Id = employeeId.getText().toString();
-        String noWhiteSpace = "\\A\\w{1,20}\\z";
 
-        if(employee_Id.isEmpty() || !employee_Id.matches(noWhiteSpace)){
-            employeeId.setError("Employee ID cannot be empty!");
-            return false;
+
+
+    private boolean validateField(EditText editText, ValidationPattern pattern) {
+        String fieldValue = editText.getText().toString().trim();
+
+        if (fieldValue.isEmpty()) {
+            editText.setError(pattern.getErrorMessage());
+            return true;
+        } else if (!fieldValue.matches(pattern.getRegex())) {
+            editText.setError(pattern.getErrorMessage());
+            return true;
         } else {
-            employeeId.setError(null);
-            return true;
+            editText.setError(null);
+            return false;
         }
     }
 
-    private boolean validateFirstName(){
-        String firstName = first_name.getText().toString();
-        String noWhiteSpace = "\\A\\w{2,20}\\z";
-        String firstNamePattern = "^[a-zA-Z]+$";
+    private boolean validatePasswordAndConfirm(EditText passwordEditText, EditText confirmEditText) {
+        String password = passwordEditText.getText().toString().trim();
+        String confirm = confirmEditText.getText().toString().trim();
 
-        if(firstName.isEmpty() || !firstName.matches(noWhiteSpace)){
-            first_name.setError("First name cannot be empty!");
-            return false;
-        } else if (!firstName.matches(firstNamePattern)) {
-            first_name.setError("First Name must include letters only");
-            return false;
+        if (!password.equals(confirm)) {
+            passwordEditText.setError("Passwords do not match!");
+            confirmEditText.setError("Passwords do not match!");
+            return true;
+        } else if (validateField(passwordEditText, ValidationPattern.PASSWORD) || validateField(confirmEditText, ValidationPattern.PASSWORD)) {
+            return true;
         } else {
-            first_name.setError(null);
-            return true;
-        }
-    }
-
-    private boolean validateLastName(){
-        String lastName = last_name.getText().toString();
-        String noWhiteSpace = "\\A\\w{2,20}\\z";
-        String lastNamePattern = "^[a-zA-Z]+$";
-
-        if(lastName.isEmpty() || !lastName.matches(noWhiteSpace)){
-            last_name.setError("Last name cannot be empty!");
+            passwordEditText.setError(null);
+            confirmEditText.setError(null);
             return false;
-        } else if (!lastName.matches(lastNamePattern)) {
-            last_name.setError("Last Name must include letters only");
-            return false;
-        } else {
-            last_name.setError(null);
-            return true;
-        }
-    }
-
-    private boolean validateSsn(){
-        String ssn_e = ssn.getText().toString();
-        String ssnPattern = "^\\d{3}-\\d{2}-\\d{4}$";
-
-        if(ssn_e.isEmpty()){
-            ssn.setError("SSN cannot be empty!");
-            return false;
-        } else if (!ssn_e.matches(ssnPattern)) {
-            ssn.setError("SSN does not follow the standard format");
-            return false;
-        } else {
-            ssn.setError(null);
-            return true;
-        }
-    }
-
-    private boolean validateEmail(){
-        String email_e = email.getText().toString();
-        String emailPattern = "[a-zA-z0-9._-]+@[a-z]+\\.+[a-z]+";
-
-        if(email_e.isEmpty()){
-            email.setError("Email cannot be empty!");
-            return false;
-        } else if(!email_e.matches(emailPattern)){
-            email.setError("Please enter a valid email");
-            return false;
-        } else{
-            email.setError(null);
-            return true;
-        }
-    }
-
-    private boolean validatePasswordAndConfirm(){
-        String password_p = password.getText().toString();
-        String confirm_p = confirm.getText().toString();
-        String passwordPattern = "^(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).+$";
-
-        if(password_p.isEmpty()){
-            password.setError("Password cannot be empty!");
-            return false;
-        } else if(confirm_p.isEmpty()){
-            confirm.setError("Confirm field cannot be empty!");
-            return false;
-        } else if (!password_p.matches(passwordPattern)){
-            password.setError("must include one number one capital letter and one symbol");
-            return false;
-        } else if (!password_p.equals(confirm_p)){
-            password.setError("Passwords do not match!");
-            return false;
-        }   else{
-            password.setError(null);
-            confirm.setError(null);
-            return true;
         }
     }
 
     private void handleErrorResponse(ResponseBody errorBody) {
-        Gson gson = new Gson();
         try {
             ErrorBody error = gson.fromJson(errorBody.charStream(), ErrorBody.class);
             Toast.makeText(SignUpActivity.this, error.getErrorMessages(), Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(SignUpActivity.this, "Error parsing error response", Toast.LENGTH_LONG).show();
         }
     }
@@ -289,11 +259,5 @@ public class SignUpActivity extends AppCompatActivity {
         confirm.setText(null);
     }
 
-    private void saveData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("email", email.getText().toString());
-        editor.putString("user_type", String.valueOf(guestOption));
-        editor.apply();
-    }
+
 }
