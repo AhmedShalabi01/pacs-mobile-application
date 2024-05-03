@@ -1,5 +1,8 @@
 package org.pacs.pacs_mobile_application.pojo.requestmodel;
 
+import lombok.Getter;
+
+@Getter
 public class RegistrationModel {
 
     private String id;
