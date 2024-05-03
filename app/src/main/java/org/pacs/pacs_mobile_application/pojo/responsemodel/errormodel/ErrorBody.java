@@ -5,8 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.time.LocalDateTime;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
 public class ErrorBody {

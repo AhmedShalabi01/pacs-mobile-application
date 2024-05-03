@@ -35,13 +35,11 @@ import org.pacs.pacs_mobile_application.pojo.responsemodel.EmployeeAttributesMod
 import org.pacs.pacs_mobile_application.pojo.responsemodel.VisitorAttributesModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
 
-import java.io.ByteArrayOutputStream;
+
 import java.io.File;
-import java.io.FileInputStream;
+
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
+
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
