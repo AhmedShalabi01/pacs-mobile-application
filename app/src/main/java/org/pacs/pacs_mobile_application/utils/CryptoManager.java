@@ -1,12 +1,16 @@
-package org.pacs.pacs_mobile_application.pojo;
+package org.pacs.pacs_mobile_application.utils;
 
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.security.KeyStore;
+import java.util.Arrays;
 import java.util.Objects;
 
 import javax.crypto.Cipher;
@@ -16,7 +20,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 import lombok.SneakyThrows;
 
-public class CryptoManger {
+public class CryptoManager {
     private final KeyStore keyStore;
     private static final String ALGORITHM = KeyProperties.KEY_ALGORITHM_AES;
     private static final String BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC;
@@ -24,7 +28,7 @@ public class CryptoManger {
     private static final String TRANSFORMATION = ALGORITHM + "/" + BLOCK_MODE + "/" + PADDING;
 
     @SneakyThrows
-    public CryptoManger() {
+    public CryptoManager() {
         keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
     }
@@ -64,15 +68,19 @@ public class CryptoManger {
     }
 
     @SneakyThrows
-    public void encrypt(byte[] bytes, OutputStream outputStream)  {
+    public void encrypt(byte[] bytes, FileOutputStream outputStream)  {
         Cipher cipher = getEncryptCipher();
+        ByteBuffer buffer = ByteBuffer.allocate(4);
         byte[] encryptedBytes;
         try{
             encryptedBytes = cipher.doFinal(bytes);
+            buffer.putInt(encryptedBytes.length);
+
             outputStream.write(cipher.getIV().length);
             outputStream.write(cipher.getIV());
-            outputStream.write(encryptedBytes.length);
+            outputStream.write(buffer.array());
             outputStream.write(encryptedBytes);
+
         }catch (Exception e) {
             Log.e("Error", Objects.requireNonNull(e.getMessage()));
         }
@@ -81,14 +89,22 @@ public class CryptoManger {
 
     @SneakyThrows
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public byte[] decrypt(InputStream inputStream)  {
+    public byte[] decrypt(FileInputStream inputStream)  {
+
         int ivSize = inputStream.read();
+
         byte[] iv = new byte[ivSize];
         inputStream.read(iv);
-        int encryptedBytesSize = inputStream.read();
+
+        byte[] sizeBytes = new byte[4];
+        inputStream.read(sizeBytes);
+
+        int encryptedBytesSize = ByteBuffer.wrap(sizeBytes).getInt();
         byte[] encryptedBytes = new byte[encryptedBytesSize];
         inputStream.read(encryptedBytes);
+
         Cipher cipher = getDecryptCipherForIv(iv);
+
         return cipher.doFinal(encryptedBytes);
     }
 
