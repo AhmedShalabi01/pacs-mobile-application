@@ -28,6 +28,12 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        sign_up = findViewById(R.id.sign_up);
+        login = findViewById(R.id.login);
+
+        sign_up.setOnClickListener(this::goToSignUp);
+        login.setOnClickListener(this::goToLogin);
     }
 
     public void goToSignUp(View view) {
