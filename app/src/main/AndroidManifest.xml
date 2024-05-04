@@ -23,22 +23,34 @@
         tools:targetApi="31">
         <activity
             android:name=".ui.HistoryActivity"
-            android:exported="false" />
+            android:exported="false"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.HomeActivity"
-            android:exported="false" />
+            android:exported="false"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ProfileActivity"
-            android:exported="false" />
+            android:exported="false"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.LoginActivity"
-            android:exported="false" />
+            android:exported="false"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.SignUpActivity"
-            android:exported="false" />
+            android:exported="false"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.main.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
