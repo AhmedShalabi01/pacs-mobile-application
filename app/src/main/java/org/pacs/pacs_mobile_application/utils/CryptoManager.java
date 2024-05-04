@@ -88,6 +88,7 @@ public class CryptoManager {
     }
 
     @SneakyThrows
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public byte[] decrypt(FileInputStream inputStream)  {
 
         int ivSize = inputStream.read();

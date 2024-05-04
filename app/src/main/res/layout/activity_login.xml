@@ -87,7 +87,8 @@
             android:textColor="@color/dark_gray"
             android:hint="@string/email"
             android:textColorHint="@color/dark_gray"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:importantForAutofill="no" />
 
         <EditText
             android:id="@+id/password"
@@ -101,7 +102,8 @@
             android:textColorHint="@color/dark_gray"
             android:inputType="textPassword"
             android:paddingStart="10dp"
-            tools:ignore="RtlSymmetry" />
+            tools:ignore="RtlSymmetry"
+            android:importantForAutofill="no" />
 
         <Button
             android:id="@+id/sign_in_btn"

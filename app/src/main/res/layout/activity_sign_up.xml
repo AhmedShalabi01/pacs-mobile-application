@@ -91,6 +91,8 @@
                 android:hint="@string/first_name"
                 android:textColorHint="@color/dark_gray"
                 android:paddingStart="10dp"
+                android:importantForAutofill="no"
+                android:inputType="text"
                 tools:ignore="RtlSymmetry" />
 
             <EditText
@@ -105,6 +107,8 @@
                 android:hint="@string/last_name"
                 android:textColorHint="@color/dark_gray"
                 android:paddingStart="10dp"
+                android:importantForAutofill="no"
+                android:inputType="text"
                 tools:ignore="RtlSymmetry" />
 
         </LinearLayout>
@@ -127,6 +131,8 @@
                 android:hint="@string/employee_id"
                 android:textColorHint="@color/dark_gray"
                 android:paddingStart="10dp"
+                android:importantForAutofill="no"
+                android:inputType="text"
                 tools:ignore="RtlSymmetry" />
 
             <EditText
@@ -141,6 +147,8 @@
                 android:hint="@string/ssn"
                 android:textColorHint="@color/dark_gray"
                 android:paddingStart="10dp"
+                android:importantForAutofill="no"
+                android:inputType="text"
                 tools:ignore="RtlSymmetry" />
 
         </LinearLayout>
@@ -156,7 +164,9 @@
             android:textColor="@color/dark_gray"
             android:hint="@string/email"
             android:textColorHint="@color/dark_gray"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:importantForAutofill="no"
+            android:inputType="textEmailAddress"/>
 
 
         <LinearLayout
@@ -177,6 +187,7 @@
                 android:hint="@string/password"
                 android:textColorHint="@color/dark_gray"
                 android:inputType="textPassword"
+                android:importantForAutofill="no"
                 android:paddingStart="10dp"
                 tools:ignore="RtlSymmetry" />
 
@@ -192,6 +203,7 @@
                 android:hint="@string/confirm"
                 android:textColorHint="@color/dark_gray"
                 android:inputType="textPassword"
+                android:importantForAutofill="no"
                 android:paddingStart="10dp"
                 tools:ignore="RtlSymmetry" />
 
