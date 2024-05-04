@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -11,13 +12,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.pacs.pacs_mobile_application.R;
 
+import java.util.Objects;
+
 public class ProfileActivity extends AppCompatActivity {
     private TextView userId, fullName, email_e, ssn;
+    private SharedPreferences sharedPreferences;
     @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         initializeViews();
+        initializeSharedPreferences();
         placeData();
         setupBottomNavigationView();
 
@@ -43,8 +50,25 @@ public class ProfileActivity extends AppCompatActivity {
         ssn = findViewById(R.id.ssn);
     }
 
+    private void initializeSharedPreferences() {
+        MasterKey masterKey;
+        try {
+            masterKey = new MasterKey.Builder(ProfileActivity.this)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build();
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    ProfileActivity.this,
+                    "secret_shared_prefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+        } catch (Exception e) {
+            Log.e("Error in create preference key" , Objects.requireNonNull(e.getMessage()));
+        }
+    }
+
     private void placeData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("sharedPref_Information",MODE_PRIVATE);
         userId.setText(sharedPreferences.getString("userId",""));
         fullName.setText(sharedPreferences.getString("Name",""));
         email_e.setText(sharedPreferences.getString("email",""));
