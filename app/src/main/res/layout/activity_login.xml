@@ -84,7 +84,9 @@
             android:layout_margin="10dp"
             android:background="@drawable/input_text_field_styling_switch_off"
             android:fontFamily="@font/ubuntu_light"
+            android:textColor="@color/dark_gray"
             android:hint="@string/email"
+            android:textColorHint="@color/dark_gray"
             android:padding="10dp" />
 
         <EditText
@@ -94,7 +96,9 @@
             android:layout_margin="10dp"
             android:background="@drawable/input_text_field_styling_switch_off"
             android:fontFamily="@font/ubuntu_light"
+            android:textColor="@color/dark_gray"
             android:hint="@string/password"
+            android:textColorHint="@color/dark_gray"
             android:inputType="textPassword"
             android:paddingStart="10dp"
             tools:ignore="RtlSymmetry" />
@@ -109,8 +113,7 @@
             android:textColor="@color/white"
             android:textFontWeight="700"
             android:textSize="23sp"
-
-            />
+            android:theme="@style/Button.indigo" />
 
         <TextView
             android:id="@+id/textView10"

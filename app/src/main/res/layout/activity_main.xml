@@ -47,9 +47,9 @@
         android:fontFamily="@font/ubuntu_light"
         android:padding="10dp"
         android:text="@string/sign_up"
-        android:onClick="goToSignUp"
         android:textSize="23sp"
         android:textStyle="bold"
+        android:theme="@style/Button.indigo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -64,9 +64,9 @@
         android:fontFamily="@font/ubuntu_light"
         android:padding="10dp"
         android:text="@string/login"
-        android:onClick="goToLogin"
         android:textSize="23sp"
         android:textStyle="bold"
+        android:theme="@style/Button.indigo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />

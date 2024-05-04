@@ -87,7 +87,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_text_field_styling_switch_off"
                 android:fontFamily="@font/ubuntu_light"
+                android:textColor="@color/dark_gray"
                 android:hint="@string/first_name"
+                android:textColorHint="@color/dark_gray"
                 android:paddingStart="10dp"
                 tools:ignore="RtlSymmetry" />
 
@@ -99,7 +101,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_text_field_styling_switch_off"
                 android:fontFamily="@font/ubuntu_light"
+                android:textColor="@color/dark_gray"
                 android:hint="@string/last_name"
+                android:textColorHint="@color/dark_gray"
                 android:paddingStart="10dp"
                 tools:ignore="RtlSymmetry" />
 
@@ -119,7 +123,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_text_field_styling_switch_off"
                 android:fontFamily="@font/ubuntu_light"
+                android:textColor="@color/dark_gray"
                 android:hint="@string/employee_id"
+                android:textColorHint="@color/dark_gray"
                 android:paddingStart="10dp"
                 tools:ignore="RtlSymmetry" />
 
@@ -131,7 +137,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_text_field_styling_switch_off"
                 android:fontFamily="@font/ubuntu_light"
+                android:textColor="@color/dark_gray"
                 android:hint="@string/ssn"
+                android:textColorHint="@color/dark_gray"
                 android:paddingStart="10dp"
                 tools:ignore="RtlSymmetry" />
 
@@ -145,7 +153,9 @@
             android:layout_marginTop="10dp"
             android:background="@drawable/input_text_field_styling_switch_off"
             android:fontFamily="@font/ubuntu_light"
+            android:textColor="@color/dark_gray"
             android:hint="@string/email"
+            android:textColorHint="@color/dark_gray"
             android:padding="10dp" />
 
 
@@ -163,7 +173,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_text_field_styling_switch_off"
                 android:fontFamily="@font/ubuntu_light"
+                android:textColor="@color/dark_gray"
                 android:hint="@string/password"
+                android:textColorHint="@color/dark_gray"
                 android:inputType="textPassword"
                 android:paddingStart="10dp"
                 tools:ignore="RtlSymmetry" />
@@ -176,7 +188,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_text_field_styling_switch_off"
                 android:fontFamily="@font/ubuntu_light"
+                android:textColor="@color/dark_gray"
                 android:hint="@string/confirm"
+                android:textColorHint="@color/dark_gray"
                 android:inputType="textPassword"
                 android:paddingStart="10dp"
                 tools:ignore="RtlSymmetry" />
@@ -193,7 +207,8 @@
             android:text="@string/sign_up"
             android:textColor="@color/white"
             android:textFontWeight="700"
-            android:textSize="23sp" />
+            android:textSize="23sp"
+            android:theme="@style/Button.indigo"/>
 
         <TextView
             android:layout_width="match_parent"
