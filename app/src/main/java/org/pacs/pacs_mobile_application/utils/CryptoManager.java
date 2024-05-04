@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.security.KeyStore;
+import java.util.Arrays;
 import java.util.Objects;
 
 import javax.crypto.Cipher;
@@ -55,7 +56,7 @@ public class CryptoManager {
         keyGenerator.init(new KeyGenParameterSpec.Builder(
                 "pacs",
                 KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                        .setKeySize(16)
+                        .setKeySize(256)
                 .setBlockModes(BLOCK_MODE)
                 .setEncryptionPaddings(PADDING)
                 .setUserAuthenticationRequired(false)
@@ -77,6 +78,8 @@ public class CryptoManager {
             outputStream.write(cipher.getIV());
             outputStream.write(buffer.array());
             outputStream.write(encryptedBytes);
+            Log.i("encryptedsize", Arrays.toString(encryptedBytes));
+            Log.i("encryptedsize",String.valueOf(encryptedBytes.length));
 
         }catch (Exception e) {
             Log.e("Error", Objects.requireNonNull(e.getMessage()));
@@ -85,7 +88,6 @@ public class CryptoManager {
     }
 
     @SneakyThrows
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public byte[] decrypt(FileInputStream inputStream)  {
 
         int ivSize = inputStream.read();
@@ -102,7 +104,10 @@ public class CryptoManager {
 
         Cipher cipher = getDecryptCipherForIv(iv);
 
-        return cipher.doFinal(encryptedBytes);
+        byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+
+
+        return decryptedBytes;
     }
 
 }
