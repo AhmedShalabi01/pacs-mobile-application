@@ -88,7 +88,8 @@
             android:hint="@string/email"
             android:textColorHint="@color/dark_gray"
             android:padding="10dp"
-            android:importantForAutofill="no" />
+            android:importantForAutofill="no"
+            android:inputType="textEmailAddress" />
 
         <EditText
             android:id="@+id/password"

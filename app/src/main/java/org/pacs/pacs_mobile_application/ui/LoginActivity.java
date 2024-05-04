@@ -38,7 +38,6 @@ import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
 
 import java.io.File;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import java.util.Objects;
