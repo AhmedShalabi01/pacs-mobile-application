@@ -78,8 +78,6 @@ public class CryptoManager {
             outputStream.write(cipher.getIV());
             outputStream.write(buffer.array());
             outputStream.write(encryptedBytes);
-            Log.i("encryptedsize", Arrays.toString(encryptedBytes));
-            Log.i("encryptedsize",String.valueOf(encryptedBytes.length));
 
         }catch (Exception e) {
             Log.e("Error", Objects.requireNonNull(e.getMessage()));
@@ -106,7 +104,6 @@ public class CryptoManager {
         Cipher cipher = getDecryptCipherForIv(iv);
 
         byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
-
 
         return decryptedBytes;
     }
