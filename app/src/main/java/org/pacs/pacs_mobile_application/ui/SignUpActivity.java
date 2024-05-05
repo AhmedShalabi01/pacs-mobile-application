@@ -22,6 +22,7 @@ import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.data.BackEndClient;
@@ -166,9 +167,12 @@ public class SignUpActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
+                    String nonce = response.headers().get("Server-Nonce");
+                    JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
+                    digitalKey.addProperty("Server-Nonce", nonce);
                     saveCredentialsToEncryptedPreferences();
                     emptyForm();
-                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
+                    encryptAndSaveAttributesToFile(digitalKey.toString());
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -187,9 +191,12 @@ public class SignUpActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
+                    String nonce = response.headers().get("Server-Nonce");
+                    JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
+                    digitalKey.addProperty("Server-Nonce", nonce);
                     saveCredentialsToEncryptedPreferences();
                     emptyForm();
-                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
+                    encryptAndSaveAttributesToFile(digitalKey.toString());
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
