@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initializeViews() {
         emailEditText = findViewById(R.id.email_signup);
-        passwordEditText = findViewById(R.id.password);
+        passwordEditText = findViewById(R.id.password_login);
     }
 
     private void initializeSharedPreferences() {

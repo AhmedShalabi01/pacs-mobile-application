@@ -176,7 +176,7 @@
             android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/password"
+                android:id="@+id/password_signup"
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_margin="5dp"
@@ -192,7 +192,7 @@
                 tools:ignore="RtlSymmetry" />
 
             <EditText
-                android:id="@+id/confirm"
+                android:id="@+id/confirm_signup"
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_margin="5dp"

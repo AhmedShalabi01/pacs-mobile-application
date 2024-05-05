@@ -75,8 +75,8 @@ public class SignUpActivity extends AppCompatActivity {
         lastNameEditText = findViewById(R.id.last_name);
         ssnEditText = findViewById(R.id.ssn);
         emailEditText = findViewById(R.id.email_signup);
-        passwordEditText = findViewById(R.id.password);
-        confirmEditText = findViewById(R.id.confirm);
+        passwordEditText = findViewById(R.id.password_signup);
+        confirmEditText = findViewById(R.id.confirm_signup);
     }
 
     private void initializeSharedPreferences() {

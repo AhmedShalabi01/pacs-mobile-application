@@ -4,10 +4,6 @@ import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.gson.Gson;
-
-import org.pacs.pacs_mobile_application.utils.CryptoManager;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
@@ -20,8 +16,6 @@ public class MyHostApduService extends HostApduService {
         Log.d("HCE", "processCommandApdu");
         Log.d("HCE", Arrays.toString(commandApdu));
 
-
-//        return "Hello".getBytes();
         return fetchAttributes().getBytes();
     }
 
