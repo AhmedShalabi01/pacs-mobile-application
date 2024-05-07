@@ -146,14 +146,14 @@ public class LoginActivity extends AppCompatActivity {
 
     private void validateEmployee(LoginModel loginModel) {
 
-        BackEndClient.getINSTANCE().validateEmployee(loginModel).enqueue(new Callback<EmployeeAttributesModel>() {
+        BackEndClient.getINSTANCE(getApplicationContext()).validateEmployee(loginModel).enqueue(new Callback<EmployeeAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
                     String nonce = response.headers().get("Server-Nonce");
                     JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
-                    digitalKey.addProperty("Server-Nonce", nonce);
+                    digitalKey.addProperty("SN", nonce);
                     saveCredentialsToEncryptedPreferences();
                     emailEditText.setText(null);
                     passwordEditText.setText(null);
@@ -171,14 +171,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void validateVisitor(LoginModel loginModel) {
-        BackEndClient.getINSTANCE().validateVisitor(loginModel).enqueue(new Callback<VisitorAttributesModel>() {
+        BackEndClient.getINSTANCE(getApplicationContext()).validateVisitor(loginModel).enqueue(new Callback<VisitorAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
                     String nonce = response.headers().get("Server-Nonce");
                     JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
-                    digitalKey.addProperty("Server-Nonce", nonce);
+                    digitalKey.addProperty("SN", nonce);
                     saveCredentialsToEncryptedPreferences();
                     emailEditText.setText(null);
                     passwordEditText.setText(null);
@@ -297,7 +297,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
     }
-
-
-
 }

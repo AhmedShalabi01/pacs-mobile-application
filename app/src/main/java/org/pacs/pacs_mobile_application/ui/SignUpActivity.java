@@ -162,14 +162,15 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void registerEmployee(RegistrationModel registrationModel) {
-        BackEndClient.getINSTANCE().registerEmployee(registrationModel).enqueue(new Callback<EmployeeAttributesModel>() {
+
+        BackEndClient.getINSTANCE(getApplicationContext()).registerEmployee(registrationModel).enqueue(new Callback<EmployeeAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
                     String nonce = response.headers().get("Server-Nonce");
                     JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
-                    digitalKey.addProperty("Server-Nonce", nonce);
+                    digitalKey.addProperty("SN", nonce);
                     saveCredentialsToEncryptedPreferences();
                     emptyForm();
                     encryptAndSaveAttributesToFile(digitalKey.toString());
@@ -186,14 +187,14 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void registerVisitor(RegistrationModel registrationModel) {
-        BackEndClient.getINSTANCE().registerVisitor(registrationModel).enqueue(new Callback<VisitorAttributesModel>() {
+        BackEndClient.getINSTANCE(getApplicationContext()).registerVisitor(registrationModel).enqueue(new Callback<VisitorAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(SignUpActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
                     String nonce = response.headers().get("Server-Nonce");
                     JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
-                    digitalKey.addProperty("Server-Nonce", nonce);
+                    digitalKey.addProperty("SN", nonce);
                     saveCredentialsToEncryptedPreferences();
                     emptyForm();
                     encryptAndSaveAttributesToFile(digitalKey.toString());
@@ -221,7 +222,6 @@ public class SignUpActivity extends AppCompatActivity {
         CryptoManager cryptoManager = new CryptoManager();
         File file = new File(getFilesDir(), "secret.txt");
 
-        Log.i("AttributeJson",attributes);
         try {
             if (!file.exists()) {
                file.createNewFile();
