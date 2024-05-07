@@ -134,18 +134,17 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
             LoginModel loginModel = new LoginModel(emailEditText.getText().toString(), passwordEditText.getText().toString());
-            validateVisitor(loginModel);
+            validateVisitor(loginModel, guestOption);
         } else {
             if(validateField(emailEditText, ValidationPattern.EMAIL) || validateField(passwordEditText, ValidationPattern.PASSWORD)){
                 return;
             }
             LoginModel loginModel = new LoginModel(emailEditText.getText().toString(), passwordEditText.getText().toString());
-            validateEmployee(loginModel);
+            validateEmployee(loginModel ,guestOption);
         }
     }
 
-    private void validateEmployee(LoginModel loginModel) {
-
+    private void validateEmployee(LoginModel loginModel, boolean guestOption) {
         BackEndClient.getINSTANCE(getApplicationContext()).validateEmployee(loginModel).enqueue(new Callback<EmployeeAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
@@ -154,7 +153,7 @@ public class LoginActivity extends AppCompatActivity {
                     String nonce = response.headers().get("Server-Nonce");
                     JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
                     digitalKey.addProperty("SN", nonce);
-                    saveCredentialsToEncryptedPreferences();
+                    saveCredentialsToEncryptedPreferences(loginModel.getEmail(), loginModel.getPassword(), guestOption);
                     emailEditText.setText(null);
                     passwordEditText.setText(null);
                     encryptAndSaveAttributesToFile(digitalKey.toString());
@@ -170,7 +169,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void validateVisitor(LoginModel loginModel) {
+    private void validateVisitor(LoginModel loginModel, boolean guestOption) {
         BackEndClient.getINSTANCE(getApplicationContext()).validateVisitor(loginModel).enqueue(new Callback<VisitorAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
@@ -179,7 +178,7 @@ public class LoginActivity extends AppCompatActivity {
                     String nonce = response.headers().get("Server-Nonce");
                     JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
                     digitalKey.addProperty("SN", nonce);
-                    saveCredentialsToEncryptedPreferences();
+                    saveCredentialsToEncryptedPreferences(loginModel.getEmail(), loginModel.getPassword(), guestOption);
                     emailEditText.setText(null);
                     passwordEditText.setText(null);
                     encryptAndSaveAttributesToFile(gson.toJson(response.body()));
@@ -212,10 +211,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void saveCredentialsToEncryptedPreferences() {
-            sharedPreferences.edit().putString("email", emailEditText.getText().toString()).apply();
+    private void saveCredentialsToEncryptedPreferences(String email, String password, boolean guestOption ) {
+            sharedPreferences.edit().putString("email", email).apply();
             sharedPreferences.edit().putString("user_type", String.valueOf(guestOption)).apply();
-            sharedPreferences.edit().putString("pass", passwordEditText.getText().toString()).apply();
+            sharedPreferences.edit().putString("pass", password).apply();
     }
 
     private boolean validateField(EditText editText, ValidationPattern pattern) {
@@ -284,9 +283,9 @@ public class LoginActivity extends AppCompatActivity {
                 String password = sharedPreferences.getString("pass", "");
 
                 if ("false".equalsIgnoreCase(userType)) {
-                    validateEmployee(new LoginModel(email,password));
+                    validateEmployee(new LoginModel(email, password), Boolean.getBoolean(userType));
                 } else {
-                    validateVisitor(new LoginModel(email,password));
+                    validateVisitor(new LoginModel(email,password), Boolean.getBoolean(userType));
                 }
             }
 
