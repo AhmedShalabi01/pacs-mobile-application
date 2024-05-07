@@ -38,6 +38,8 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -58,4 +60,13 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
 
     implementation ("androidx.security:security-crypto:1.1.0-alpha03")
+
+    // Required -- JUnit 4 framework
+    testImplementation("junit:junit:4.13.2")
+    // Optional -- Robolectric environment
+    testImplementation ("androidx.test:core:core:1.5.0")
+    // Optional -- Mockito framework
+    testImplementation("org.mockito:mockito-core:4.11.0")
+    // Optional -- Mockk framework
+    testImplementation("io.mockk:mockk:1.9.3")
 }
