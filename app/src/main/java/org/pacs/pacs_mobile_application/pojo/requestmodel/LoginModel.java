@@ -1,7 +1,6 @@
 package org.pacs.pacs_mobile_application.pojo.requestmodel;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 import lombok.AllArgsConstructor;
