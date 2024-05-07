@@ -85,7 +85,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
     private void fetchEmployeeInfo(String email) {
-        BackEndClient.getINSTANCE().findEmployeeInfo(email).enqueue(new Callback<UserInfoModel>() {
+        BackEndClient.getINSTANCE(getApplicationContext()).findEmployeeInfo(email).enqueue(new Callback<UserInfoModel>() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(@NonNull Call<UserInfoModel> call, @NonNull Response<UserInfoModel> response) {
@@ -104,7 +104,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
     private void fetchVisitorInfo(String email) {
-        BackEndClient.getINSTANCE().findVisitorInfo(email).enqueue(new Callback<UserInfoModel>() {
+        BackEndClient.getINSTANCE(getApplicationContext()).findVisitorInfo(email).enqueue(new Callback<UserInfoModel>() {
             @Override
             public void onResponse(@NonNull Call<UserInfoModel> call, @NonNull Response<UserInfoModel> response) {
                 if(response.isSuccessful()) {
