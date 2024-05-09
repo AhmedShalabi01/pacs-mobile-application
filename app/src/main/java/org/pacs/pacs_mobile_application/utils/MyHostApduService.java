@@ -6,6 +6,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ public class MyHostApduService extends HostApduService {
         Log.d("HCE", "processCommandApdu");
         Log.d("HCE", Arrays.toString(commandApdu));
 
-        return fetchAttributes().getBytes();
+        return readAttributesFromTempFile(this).getBytes();
     }
 
     @Override
@@ -24,19 +25,21 @@ public class MyHostApduService extends HostApduService {
         Log.d("HCE", "Deactivated: " + reason);
     }
 
-
-    private String fetchAttributes() {
+    private String readAttributesFromTempFile(MyHostApduService context) {
         CryptoManager cryptoManager = new CryptoManager();
-        File file = new File(getFilesDir(), "secret.txt");
+        File tempFile = new File(context.getCacheDir(), "secret.txt");
+        String decryptedAttributes;
         FileInputStream streamInput;
 
         try {
-            streamInput = new FileInputStream(file);
-            byte[] outputDecrypted = cryptoManager.decrypt(streamInput);
-            return new String(outputDecrypted);
-        } catch (Exception e) {
-            Log.e("Error in decryption", Objects.requireNonNull(e.getMessage()));
+            streamInput = new FileInputStream(tempFile);
+            byte[] decryptedBytes = cryptoManager.decrypt(streamInput);
+            decryptedAttributes = new String(decryptedBytes);
+        } catch (IOException e) {
+            Log.e("Error in reading file", Objects.requireNonNull(e.getMessage()));
+            decryptedAttributes = "6A0F";
         }
-        return "Fail";
+
+        return decryptedAttributes;
     }
 }

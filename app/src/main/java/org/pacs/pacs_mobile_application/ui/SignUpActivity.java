@@ -36,6 +36,7 @@ import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 
 import okhttp3.ResponseBody;
@@ -144,7 +145,7 @@ public class SignUpActivity extends AppCompatActivity {
                     ssnEditText.getText().toString(),
                     emailEditText.getText().toString(),
                     passwordEditText.getText().toString());
-            registerVisitor(registrationModel);
+            registerVisitor(registrationModel, guestOption);
         } else {
             if( validateField(firstNameEditText,ValidationPattern.FIRST_NAME) || validateField(lastNameEditText,ValidationPattern.LAST_NAME) ||
                     validateField(employeeIdEditText,ValidationPattern.ID) || validateField(ssnEditText,ValidationPattern.SSN) ||
@@ -157,11 +158,11 @@ public class SignUpActivity extends AppCompatActivity {
                     ssnEditText.getText().toString(),
                     emailEditText.getText().toString(),
                     passwordEditText.getText().toString());
-            registerEmployee(registrationModel);
+            registerEmployee(registrationModel, guestOption);
         }
     }
 
-    private void registerEmployee(RegistrationModel registrationModel) {
+    private void registerEmployee(RegistrationModel registrationModel, boolean guestOption) {
 
         BackEndClient.getINSTANCE(getApplicationContext()).registerEmployee(registrationModel).enqueue(new Callback<EmployeeAttributesModel>() {
             @Override
@@ -171,9 +172,9 @@ public class SignUpActivity extends AppCompatActivity {
                     String nonce = response.headers().get("Server-Nonce");
                     JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
                     digitalKey.addProperty("SN", nonce);
-                    saveCredentialsToEncryptedPreferences();
+                    saveCredentialsToEncryptedPreferences(registrationModel.getEmail(), registrationModel.getPassword(), guestOption);
                     emptyForm();
-                    encryptAndSaveAttributesToFile(digitalKey.toString());
+                    encryptAndSaveAttributesToTempFile(digitalKey.toString(), SignUpActivity.this);
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -186,7 +187,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    private void registerVisitor(RegistrationModel registrationModel) {
+    private void registerVisitor(RegistrationModel registrationModel, boolean guestOption) {
         BackEndClient.getINSTANCE(getApplicationContext()).registerVisitor(registrationModel).enqueue(new Callback<VisitorAttributesModel>() {
             @Override
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
@@ -195,9 +196,9 @@ public class SignUpActivity extends AppCompatActivity {
                     String nonce = response.headers().get("Server-Nonce");
                     JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
                     digitalKey.addProperty("SN", nonce);
-                    saveCredentialsToEncryptedPreferences();
+                    saveCredentialsToEncryptedPreferences(registrationModel.getEmail(), registrationModel.getPassword(), guestOption);
                     emptyForm();
-                    encryptAndSaveAttributesToFile(digitalKey.toString());
+                    encryptAndSaveAttributesToTempFile(digitalKey.toString(), SignUpActivity.this);
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -211,25 +212,26 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void saveCredentialsToEncryptedPreferences() {
-        sharedPreferences.edit().putString("email", emailEditText.getText().toString()).apply();
+    private void saveCredentialsToEncryptedPreferences(String email, String password, boolean guestOption ) {
+        sharedPreferences.edit().putString("email", email).apply();
         sharedPreferences.edit().putString("user_type", String.valueOf(guestOption)).apply();
-        sharedPreferences.edit().putString("pass", passwordEditText.getText().toString()).apply();
+        sharedPreferences.edit().putString("pass", password).apply();
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void encryptAndSaveAttributesToFile(String attributes) {
+    private void encryptAndSaveAttributesToTempFile(String attributes, SignUpActivity context) {
         CryptoManager cryptoManager = new CryptoManager();
-        File file = new File(getFilesDir(), "secret.txt");
+        File tempFile = null;
 
         try {
-            if (!file.exists()) {
-               file.createNewFile();
+            tempFile = File.createTempFile("secret", ".txt", context.getCacheDir());
+            FileOutputStream outputStream = new FileOutputStream(tempFile);
+            cryptoManager.encrypt(attributes.getBytes(), outputStream);
+        } catch (IOException e) {
+            Log.e("Error in encryption", Objects.requireNonNull(e.getMessage()));
+        } finally {
+            if (tempFile != null && tempFile.exists()) {
+                tempFile.deleteOnExit();
             }
-            FileOutputStream streamOutput = new FileOutputStream(file);
-            cryptoManager.encrypt(attributes.getBytes(), streamOutput);
-        } catch (Exception e) {
-            Log.e("error in encryption" , Objects.requireNonNull(e.getMessage()));
         }
     }
 
