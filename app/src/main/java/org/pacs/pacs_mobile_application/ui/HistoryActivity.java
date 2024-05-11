@@ -24,7 +24,6 @@ import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
 import org.pacs.pacs_mobile_application.utils.AccessAttemptAdapter;
 import org.pacs.pacs_mobile_application.utils.CustomSharedPreferences;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.ResponseBody;
