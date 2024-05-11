@@ -86,7 +86,7 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
     private void fetchVisitorHistory(String id) {
-        BackEndClient.getINSTANCE(getApplicationContext()).findEmployeeHistory(id).enqueue(new Callback<List<AccessAttemptModel>> () {
+        BackEndClient.getINSTANCE(getApplicationContext()).findVisitorHistory(id).enqueue(new Callback<List<AccessAttemptModel>> () {
             @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(@NonNull Call<List<AccessAttemptModel>> call, @NonNull Response<List<AccessAttemptModel>> response) {

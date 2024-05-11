@@ -141,12 +141,14 @@ public class BackEndClient {
     public Call<UserInfoModel> findVisitorInfo(@Path("email") String email) {
         return backEndApi.findVisitorInfo(email);
     }
-    public Call<List<AccessAttemptModel>>  findVisitorHistory(@Path("id") String id) {
-        return backEndApi.findVisitorHistory(id);
-    }
+
     public Call<List<AccessAttemptModel>>  findEmployeeHistory(@Path("id") String id) {
         return backEndApi.findEmployeeHistory(id);
     }
+    public Call<List<AccessAttemptModel>>  findVisitorHistory(@Path("id") String id) {
+        return backEndApi.findVisitorHistory(id);
+    }
+
 
 
 }

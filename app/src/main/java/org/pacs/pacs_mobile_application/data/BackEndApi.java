@@ -30,9 +30,9 @@ public interface BackEndApi {
     Call<UserInfoModel> findEmployeeInfo(@Path("email") String email);
     @GET("visitor/find/info/email/{email}")
      Call<UserInfoModel> findVisitorInfo(@Path("email") String email);
-    @GET("visitor/find/history/id/{id}")
-    Call<List<AccessAttemptModel>> findVisitorHistory(@Path("id") String id);
     @GET("employee/find/history/id/{id}")
     Call<List<AccessAttemptModel>>  findEmployeeHistory(@Path("id") String id);
 
+    @GET("visitor/find/history/id/{id}")
+    Call<List<AccessAttemptModel>> findVisitorHistory(@Path("id") String id);
 }
