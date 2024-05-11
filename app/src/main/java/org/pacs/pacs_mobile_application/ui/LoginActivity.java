@@ -184,7 +184,6 @@ public class LoginActivity extends AppCompatActivity {
     private void encryptAndSaveAttributesToFile(String attributes) {
         CryptoManager cryptoManager = new CryptoManager();
         File file = new File(getFilesDir(), "secret.txt");
-        Log.i("AttributeJson",attributes);
         try {
             if (!file.exists()) {
                 file.createNewFile();

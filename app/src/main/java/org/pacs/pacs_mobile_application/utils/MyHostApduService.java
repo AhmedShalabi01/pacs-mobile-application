@@ -33,7 +33,7 @@ public class MyHostApduService extends HostApduService {
             String attributesJson = readAttributesFromFile();
             String nonce = fetchAccessNonce();
             JsonObject payload = new JsonObject();
-            payload.addProperty("UAT", attributesJson);
+            payload.addProperty("UAT", gson.toJson(attributesJson));
             payload.addProperty("NC", nonce);
             updatedAttributesJson = gson.toJson(payload);
 
