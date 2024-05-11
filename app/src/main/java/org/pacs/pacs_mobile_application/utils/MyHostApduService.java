@@ -13,7 +13,6 @@ import org.pacs.pacs_mobile_application.ui.LoginActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +30,7 @@ public class MyHostApduService extends HostApduService {
 
         try {
             Gson gson = new Gson();
-            String attributesJson = readAttributesFromTempFile();
+            String attributesJson = readAttributesFromFile();
             String nonce = fetchAccessNonce();
             JsonObject payload = new JsonObject();
             payload.addProperty("UAT", attributesJson);
@@ -57,22 +56,19 @@ public class MyHostApduService extends HostApduService {
         stopService(serviceIntent);
     }
 
-    private String readAttributesFromTempFile() {
-        CryptoManager cryptoManager = new CryptoManager();
-        File tempFile = new File(getCacheDir(), "secretATT.txt");
-        String decryptedAttributes = null;
-        if (tempFile.exists()) {
-            try (FileInputStream streamInput = new FileInputStream(tempFile)) {
-                byte[] decryptedBytes = cryptoManager.decrypt(streamInput);
-                decryptedAttributes = new String(decryptedBytes);
-            } catch (IOException e) {
-                Log.e("Error in reading file", Objects.requireNonNull(e.getMessage()));
-            }
-        } else {
-            Log.e("FileNotFound", "Temporary file not found");
-        }
 
-        return decryptedAttributes;
+    private String readAttributesFromFile() {
+        CryptoManager cryptoManager = new CryptoManager();
+        File file = new File(getFilesDir(), "secret.txt");
+        FileInputStream streamInput;
+        try {
+            streamInput = new FileInputStream(file);
+            byte[] outputDecrypted = cryptoManager.decrypt(streamInput);
+            return new String(outputDecrypted);
+        } catch (Exception e) {
+            Log.e("Error in decryption", Objects.requireNonNull(e.getMessage()));
+        }
+        return "Fail";
     }
 
     private String fetchAccessNonce() {

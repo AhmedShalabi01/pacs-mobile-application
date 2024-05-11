@@ -41,7 +41,6 @@ import java.io.File;
 
 import java.io.FileOutputStream;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -142,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
                     saveCredentialsToEncryptedPreferences(loginModel.getEmail(), loginModel.getPassword(), guestOption);
                     emailEditText.setText(null);
                     passwordEditText.setText(null);
-                    encryptAndSaveAttributesToTempFile(gson.toJson(response.body()));
+                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -167,7 +166,7 @@ public class LoginActivity extends AppCompatActivity {
                     saveCredentialsToEncryptedPreferences(loginModel.getEmail(), loginModel.getPassword(), guestOption);
                     emailEditText.setText(null);
                     passwordEditText.setText(null);
-                    encryptAndSaveAttributesToTempFile(gson.toJson(response.body()));
+                    encryptAndSaveAttributesToFile(gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -181,20 +180,19 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void encryptAndSaveAttributesToTempFile(String digitalKey) {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void encryptAndSaveAttributesToFile(String attributes) {
         CryptoManager cryptoManager = new CryptoManager();
-        File tempFile = null;
-
+        File file = new File(getFilesDir(), "secret.txt");
+        Log.i("AttributeJson",attributes);
         try {
-            tempFile = File.createTempFile("secretATT", ".txt", getCacheDir());
-            FileOutputStream outputStream = new FileOutputStream(tempFile);
-            cryptoManager.encrypt(digitalKey.getBytes(), outputStream);
-        } catch (IOException e) {
-            Log.e("Error in encryption", Objects.requireNonNull(e.getMessage()));
-        } finally {
-            if (tempFile != null && tempFile.exists()) {
-                tempFile.deleteOnExit();
+            if (!file.exists()) {
+                file.createNewFile();
             }
+            FileOutputStream streamOutput = new FileOutputStream(file);
+            cryptoManager.encrypt(attributes.getBytes(), streamOutput);
+        } catch (Exception e) {
+            Log.e("error in encryption" , Objects.requireNonNull(e.getMessage()));
         }
     }
 
