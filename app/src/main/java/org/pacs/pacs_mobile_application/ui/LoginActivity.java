@@ -5,7 +5,6 @@ import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,15 +22,14 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.security.crypto.EncryptedSharedPreferences;
-import androidx.security.crypto.MasterKey;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.data.BackEndClient;
 import org.pacs.pacs_mobile_application.utils.CryptoManager;
+import org.pacs.pacs_mobile_application.utils.CustomSharedPreferences;
+import org.pacs.pacs_mobile_application.utils.NonceGenerator;
 import org.pacs.pacs_mobile_application.utils.ValidationPattern;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.LoginModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.EmployeeAttributesModel;
@@ -44,6 +42,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -58,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
     private boolean guestOption;
     private final Gson gson = new Gson();
     private BiometricPrompt biometricPrompt;
-    private SharedPreferences sharedPreferences;
+    private CustomSharedPreferences customSharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,21 +83,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initializeSharedPreferences() {
-        MasterKey masterKey;
-        try {
-            masterKey = new MasterKey.Builder(LoginActivity.this)
-                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                    .build();
-            sharedPreferences = EncryptedSharedPreferences.create(
-                    LoginActivity.this,
-                    "secret_shared_prefs",
-                    masterKey,
-                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            );
-        } catch (Exception e) {
-            Log.e("Error in create preference key" , Objects.requireNonNull(e.getMessage()));
-        }
+        customSharedPreferences = CustomSharedPreferences.getInstance(this);
     }
 
     private void setupSignInButton() {
@@ -151,13 +136,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<EmployeeAttributesModel> call, @NonNull Response<EmployeeAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
-                    String nonce = response.headers().get("Server-Nonce");
-                    JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
-                    digitalKey.addProperty("SN", nonce);
+
+                    String seed = response.headers().get("Server-Seed");
+                    generateAndSaveAuthenticationNonce(seed);
                     saveCredentialsToEncryptedPreferences(loginModel.getEmail(), loginModel.getPassword(), guestOption);
                     emailEditText.setText(null);
                     passwordEditText.setText(null);
-                    encryptAndSaveAttributesToTempFile(digitalKey.toString(), LoginActivity.this);
+                    encryptAndSaveAttributesToTempFile(gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -176,13 +161,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<VisitorAttributesModel> call, @NonNull Response<VisitorAttributesModel> response) {
                 if(response.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
-                    String nonce = response.headers().get("Server-Nonce");
-                    JsonObject digitalKey = gson.toJsonTree(response.body()).getAsJsonObject();
-                    digitalKey.addProperty("SN", nonce);
+
+                    String seed = response.headers().get("Server-Seed");
+                    generateAndSaveAuthenticationNonce(seed);
                     saveCredentialsToEncryptedPreferences(loginModel.getEmail(), loginModel.getPassword(), guestOption);
                     emailEditText.setText(null);
                     passwordEditText.setText(null);
-                    encryptAndSaveAttributesToTempFile(digitalKey.toString(), LoginActivity.this);
+                    encryptAndSaveAttributesToTempFile(gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());
@@ -196,12 +181,12 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void encryptAndSaveAttributesToTempFile(String digitalKey, LoginActivity context) {
+    private void encryptAndSaveAttributesToTempFile(String digitalKey) {
         CryptoManager cryptoManager = new CryptoManager();
         File tempFile = null;
 
         try {
-            tempFile = File.createTempFile("secret", ".txt", context.getCacheDir());
+            tempFile = File.createTempFile("secretATT", ".txt", getCacheDir());
             FileOutputStream outputStream = new FileOutputStream(tempFile);
             cryptoManager.encrypt(digitalKey.getBytes(), outputStream);
         } catch (IOException e) {
@@ -213,10 +198,24 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void generateAndSaveAuthenticationNonce(String seed) {
+        List<String> noncesAsList = NonceGenerator.generateNonceSequence(seed,10);
+        StringBuilder noncesAsString = new StringBuilder();
+        for (String item : noncesAsList) {
+            noncesAsString.append(item).append(",");
+        }
+        // Remove the last comma
+        if (!noncesAsList.isEmpty()) {
+            noncesAsString.deleteCharAt(noncesAsString.length() - 1);
+        }
+        customSharedPreferences.saveData("noncesList", noncesAsString.toString());
+        customSharedPreferences.saveData("currentIndex", "0");
+    }
+
     private void saveCredentialsToEncryptedPreferences(String email, String password, boolean guestOption ) {
-            sharedPreferences.edit().putString("email", email).apply();
-            sharedPreferences.edit().putString("user_type", String.valueOf(guestOption)).apply();
-            sharedPreferences.edit().putString("pass", password).apply();
+            customSharedPreferences.saveData("email", email);
+            customSharedPreferences.saveData("user_type", String.valueOf(guestOption));
+            customSharedPreferences.saveData("pass", password);
     }
 
     private boolean validateField(EditText editText, ValidationPattern pattern) {
@@ -280,9 +279,9 @@ public class LoginActivity extends AppCompatActivity {
                 super.onAuthenticationSucceeded(result);
                 Toast.makeText(LoginActivity.this, "Authentication succeeded!", Toast.LENGTH_LONG).show();
 
-                String userType = sharedPreferences.getString("user_type", "");
-                String email = sharedPreferences.getString("email", "");
-                String password = sharedPreferences.getString("pass", "");
+                String userType = customSharedPreferences.readData("user_type", "");
+                String email = customSharedPreferences.readData("email", "");
+                String password = customSharedPreferences.readData("pass", "");
 
                 if ("false".equalsIgnoreCase(userType)) {
                     validateEmployee(new LoginModel(email, password), Boolean.getBoolean(userType));

@@ -2,9 +2,7 @@ package org.pacs.pacs_mobile_application.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -12,18 +10,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.security.crypto.EncryptedSharedPreferences;
-import androidx.security.crypto.MasterKey;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.pacs.pacs_mobile_application.R;
+import org.pacs.pacs_mobile_application.utils.CustomSharedPreferences;
 
-import java.util.Objects;
 
 public class ProfileActivity extends AppCompatActivity {
     private TextView userId, fullName, email_e, ssn;
-    private SharedPreferences sharedPreferences;
+    private CustomSharedPreferences customSharedPreferences;
     @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,28 +47,14 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void initializeSharedPreferences() {
-        MasterKey masterKey;
-        try {
-            masterKey = new MasterKey.Builder(ProfileActivity.this)
-                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                    .build();
-            sharedPreferences = EncryptedSharedPreferences.create(
-                    ProfileActivity.this,
-                    "secret_shared_prefs",
-                    masterKey,
-                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            );
-        } catch (Exception e) {
-            Log.e("Error in create preference key" , Objects.requireNonNull(e.getMessage()));
-        }
+        customSharedPreferences = CustomSharedPreferences.getInstance(this);
     }
 
     private void placeData() {
-        userId.setText(sharedPreferences.getString("userId",""));
-        fullName.setText(sharedPreferences.getString("Name",""));
-        email_e.setText(sharedPreferences.getString("email",""));
-        ssn.setText(sharedPreferences.getString("ssn",""));
+        userId.setText(customSharedPreferences.readData("userId",""));
+        fullName.setText(customSharedPreferences.readData("Name",""));
+        email_e.setText(customSharedPreferences.readData("email",""));
+        ssn.setText(customSharedPreferences.readData("ssn",""));
     }
 
     private void setupBottomNavigationView() {

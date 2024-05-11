@@ -32,4 +32,7 @@
     <string name="aiddescription">PACS AID</string>
     <string name="servicedesc">PACS Host APDU Service</string>
     <string name="biometric_authentication_login">Biometric Authentication Login</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="scan_mobile_on_nfc_reader">Scan mobile on NFC reader</string>
+    <string name="access_history">Access History</string>
 </resources>

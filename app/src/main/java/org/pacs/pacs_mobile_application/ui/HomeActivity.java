@@ -2,9 +2,8 @@ package org.pacs.pacs_mobile_application.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,8 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.security.crypto.EncryptedSharedPreferences;
-import androidx.security.crypto.MasterKey;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
@@ -24,8 +21,9 @@ import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.data.BackEndClient;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.UserInfoModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
+import org.pacs.pacs_mobile_application.ui.main.MainActivity;
+import org.pacs.pacs_mobile_application.utils.CustomSharedPreferences;
 
-import java.util.Objects;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -34,7 +32,7 @@ import retrofit2.Response;
 
 public class HomeActivity extends AppCompatActivity {
     private TextView userId, userName;
-    SharedPreferences sharedPreferences;
+    private CustomSharedPreferences customSharedPreferences;
     @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +48,8 @@ public class HomeActivity extends AppCompatActivity {
         initializeViews();
         initializeSharedPreferences();
 
-        String email = sharedPreferences.getString("email", "");
-        String userType = sharedPreferences.getString("user_type", "");
+        String email = customSharedPreferences.readData("email", "");
+        String userType = customSharedPreferences.readData("user_type", "");
 
         if ("false".equalsIgnoreCase(userType)) {
             fetchEmployeeInfo(email);
@@ -68,22 +66,15 @@ public class HomeActivity extends AppCompatActivity {
         userName = findViewById(R.id.user_name);
     }
     private void initializeSharedPreferences() {
-        MasterKey masterKey;
-        try {
-            masterKey = new MasterKey.Builder(HomeActivity.this)
-                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                    .build();
-            sharedPreferences = EncryptedSharedPreferences.create(
-                    HomeActivity.this,
-                    "secret_shared_prefs",
-                    masterKey,
-                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            );
-        } catch (Exception e) {
-            Log.e("Error in create preference key" , Objects.requireNonNull(e.getMessage()));
-        }
+        customSharedPreferences = CustomSharedPreferences.getInstance(this);
     }
+
+    public void goToMainActivity(View view) {
+        Intent moveToMainActivity = new Intent(HomeActivity.this, MainActivity.class);
+        startActivity(moveToMainActivity);
+        finish();
+    }
+
     private void fetchEmployeeInfo(String email) {
         BackEndClient.getINSTANCE(getApplicationContext()).findEmployeeInfo(email).enqueue(new Callback<UserInfoModel>() {
             @SuppressLint("SetTextI18n")
@@ -123,14 +114,14 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void saveData(UserInfoModel userInfoModel) {
-        sharedPreferences.edit().putString("userId",userInfoModel.getId()).apply();
-        sharedPreferences.edit().putString("Name",userInfoModel.getFirstName()+" "+userInfoModel.getLastName()).apply();
-        sharedPreferences.edit().putString("ssn", userInfoModel.getSsn()).apply();
+        customSharedPreferences.saveData("userId",userInfoModel.getId());
+        customSharedPreferences.saveData("Name",userInfoModel.getFirstName()+" "+userInfoModel.getLastName());
+        customSharedPreferences.saveData("ssn", userInfoModel.getSsn());
     }
-    @SuppressLint("SetTextI18n")
+
     private void placeData(UserInfoModel userInfoModel) {
         userId.setText(userInfoModel.getId());
-        userName.setText(userInfoModel.getFirstName() + " " + userInfoModel.getLastName());
+        userName.setText(String.format("%s %s", userInfoModel.getFirstName(), userInfoModel.getLastName()));
     }
     private void handleErrorResponse(ResponseBody errorBody) {
         Gson gson = new Gson();

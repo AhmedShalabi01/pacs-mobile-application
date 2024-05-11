@@ -24,6 +24,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/sign_out_btn_home"
+        android:layout_width="70dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:padding="5dp"
+        android:text="@string/sign_out"
+        android:onClick="goToMainActivity"
+        android:textColor="@color/white"
+        android:textFontWeight="700"
+        android:textSize="12sp"
+        android:theme="@style/Button.red"
+        app:layout_constraintBottom_toTopOf="@+id/textView4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="335dp"
@@ -81,7 +97,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="144dp"
-        android:text="Scan mobile on NFC reader"
+        android:text="@string/scan_mobile_on_nfc_reader"
         android:textColor="@color/grey_light"
         android:textSize="13sp"
         android:textStyle="italic"

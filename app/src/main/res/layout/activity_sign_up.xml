@@ -227,7 +227,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:fontFamily="@font/ubuntu_light"
-            android:onClick="goToLoginAct"
+            android:onClick="goToLoginActivity"
             android:paddingStart="10dp"
             android:text="@string/go_to_sign_in"
             android:textColor="@color/black"
