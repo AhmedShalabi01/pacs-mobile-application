@@ -7,6 +7,7 @@ import android.util.Log;
 import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.LoginModel;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.RegistrationModel;
+import org.pacs.pacs_mobile_application.pojo.responsemodel.AccessAttemptModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.EmployeeAttributesModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.UserInfoModel;
 import org.pacs.pacs_mobile_application.pojo.responsemodel.VisitorAttributesModel;
@@ -19,6 +20,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Objects;
 
 import javax.net.ssl.SSLContext;
@@ -35,7 +37,7 @@ import retrofit2.http.Path;
 public class BackEndClient {
 
     private static Context applicationContext;
-    private static final String BASE_URL = "https://192.168.1.7:8084/pacs/";
+    private static final String BASE_URL = "https://172.20.10.13:8084/pacs/";
     private final BackEndApi backEndApi;
     private static BackEndClient INSTANCE;
 
@@ -51,7 +53,6 @@ public class BackEndClient {
             keyStore.load(null, null);
             keyStore.setCertificateEntry("certificate", certificate);
 
-            // Create a trust manager that trusts the self-signed certificate
             @SuppressLint("CustomX509TrustManager") TrustManager[] trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {
                         @SuppressLint("TrustAllX509TrustManager")
@@ -61,7 +62,6 @@ public class BackEndClient {
 
                         @Override
                         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                            // Verify that the server certificate is the one you expect
                             X509Certificate certificate = chain[0];
                             String serverFingerprint = sha1Fingerprint(certificate);
                             String expectedFingerprint = "03:89:06:68:3F:E1:D2:70:75:C1:4A:EC:B1:45:81:F8:A5:38:D8:59";
@@ -77,7 +77,6 @@ public class BackEndClient {
                     }
             };
 
-            // Install the trust manager
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
             httpClient.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
@@ -92,7 +91,7 @@ public class BackEndClient {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient.build()) // Set the custom OkHttpClient
+                .client(httpClient.build())
                 .build();
 
         backEndApi = retrofit.create(BackEndApi.class);
@@ -141,6 +140,12 @@ public class BackEndClient {
     }
     public Call<UserInfoModel> findVisitorInfo(@Path("email") String email) {
         return backEndApi.findVisitorInfo(email);
+    }
+    public Call<List<AccessAttemptModel>>  findVisitorHistory(@Path("id") String id) {
+        return backEndApi.findVisitorHistory(id);
+    }
+    public Call<List<AccessAttemptModel>>  findEmployeeHistory(@Path("id") String id) {
+        return backEndApi.findEmployeeHistory(id);
     }
 
 
