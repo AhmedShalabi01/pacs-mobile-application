@@ -30,10 +30,11 @@ public class MyHostApduService extends HostApduService {
 
         try {
             Gson gson = new Gson();
-            String attributesJson = readAttributesFromFile();
+            String attributesString = readAttributesFromFile();
+            JsonObject attributesJson = gson.fromJson(attributesString, JsonObject.class);
             String nonce = fetchAccessNonce();
             JsonObject payload = new JsonObject();
-            payload.addProperty("UAT", gson.toJson(attributesJson));
+            payload.addProperty("UAT", attributesJson.toString());
             payload.addProperty("NC", nonce);
             updatedAttributesJson = gson.toJson(payload);
 
@@ -54,7 +55,7 @@ public class MyHostApduService extends HostApduService {
         super.onDestroy();
         Intent serviceIntent = new Intent(this, MyHostApduService.class);
         stopService(serviceIntent);
-        deleteAttributesFile();
+//        deleteAttributesFile();
     }
 
     private String readAttributesFromFile() {
@@ -116,6 +117,7 @@ public class MyHostApduService extends HostApduService {
 
     private void goToLoginActivity() {
         Intent moveToLoginActivity = new Intent(this, LoginActivity.class);
+        moveToLoginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(moveToLoginActivity);
     }
 }
