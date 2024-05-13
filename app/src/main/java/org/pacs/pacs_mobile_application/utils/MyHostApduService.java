@@ -20,7 +20,6 @@ import java.util.Objects;
 
 public class MyHostApduService extends HostApduService {
 
-    public static final String ACTION_SHOW_TOAST = "com.example.ACTION_SHOW_TOAST";
 
     @Override
     public byte[] processCommandApdu(byte[] commandApdu, Bundle extras) {
@@ -89,11 +88,9 @@ public class MyHostApduService extends HostApduService {
 //              Toast.makeText(this,"Key Session is Expired, Please Login again",Toast.LENGTH_LONG).show();
 //              goToLoginActivity();
 
-                Intent intent = new Intent();
-                intent.setAction(ACTION_SHOW_TOAST);
-                intent.putExtra("message", "Key Session is Expired, Please Login again");
-                sendBroadcast(intent);
-                goToLoginActivity();
+                Intent myIntent = new Intent(this, LoginActivity.class);
+                this.startActivity(myIntent);
+//                goToLoginActivity();
 
             }
         } catch (Exception e) {

@@ -80,28 +80,6 @@ public class LoginActivity extends AppCompatActivity {
         setupBiometricPrompt();
     }
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(MyHostApduService.ACTION_SHOW_TOAST)) {
-                String message = intent.getStringExtra("message");
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-            }
-        }
-    };
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter filter = new IntentFilter(MyHostApduService.ACTION_SHOW_TOAST);
-        registerReceiver(mReceiver, filter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(mReceiver);
-    }
 
     private void initializeViews() {
         emailEditText = findViewById(R.id.email_login);
