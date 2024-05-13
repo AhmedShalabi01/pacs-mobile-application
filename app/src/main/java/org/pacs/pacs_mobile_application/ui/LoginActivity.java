@@ -4,10 +4,7 @@ import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRON
 import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +29,6 @@ import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.data.BackEndClient;
 import org.pacs.pacs_mobile_application.utils.CryptoManager;
 import org.pacs.pacs_mobile_application.utils.CustomSharedPreferences;
-import org.pacs.pacs_mobile_application.utils.MyHostApduService;
 import org.pacs.pacs_mobile_application.utils.NonceGenerator;
 import org.pacs.pacs_mobile_application.utils.ValidationPattern;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.LoginModel;
@@ -79,7 +75,6 @@ public class LoginActivity extends AppCompatActivity {
         setupGuestSwitch();
         setupBiometricPrompt();
     }
-
 
     private void initializeViews() {
         emailEditText = findViewById(R.id.email_login);
