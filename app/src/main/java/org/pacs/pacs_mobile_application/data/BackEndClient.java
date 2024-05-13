@@ -37,12 +37,15 @@ import retrofit2.http.Path;
 public class BackEndClient {
 
     private static Context applicationContext;
-    private static final String BASE_URL = "https://172.20.10.13:8084/pacs/";
+    private static final String BASE_URL1 = "https://192.168.1.7:8084/login-registration/";
+    private static final String BASE_URL2 = "http://192.168.1.7:8086/access-control/";
     private final BackEndApi backEndApi;
+    private final BackEndApi backEndApi2;
     private static BackEndClient INSTANCE;
 
     public BackEndClient(Context context) {
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        OkHttpClient.Builder httpClient1 = new OkHttpClient.Builder();
+        OkHttpClient.Builder httpClient2 = new OkHttpClient.Builder();
         try {
 
             InputStream inputStream = context.getResources().openRawResource(R.raw.pacs_system);
@@ -79,8 +82,8 @@ public class BackEndClient {
 
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-            httpClient.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
-            httpClient.hostnameVerifier((hostname, session) -> true);
+            httpClient1.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
+            httpClient1.hostnameVerifier((hostname, session) -> true);
 
 
         } catch (Exception e) {
@@ -88,13 +91,20 @@ public class BackEndClient {
         }
 
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+        Retrofit retrofit1 = new Retrofit.Builder()
+                .baseUrl(BASE_URL1)
                 .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient.build())
+                .client(httpClient1.build())
                 .build();
 
-        backEndApi = retrofit.create(BackEndApi.class);
+        Retrofit retrofit2 = new Retrofit.Builder()
+                .baseUrl(BASE_URL2)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient2.build())
+                .build();
+
+        backEndApi = retrofit1.create(BackEndApi.class);
+        backEndApi2 = retrofit2.create(BackEndApi.class);
     }
     private static String sha1Fingerprint(X509Certificate certificate) {
         try {
@@ -143,12 +153,9 @@ public class BackEndClient {
     }
 
     public Call<List<AccessAttemptModel>>  findEmployeeHistory(@Path("id") String id) {
-        return backEndApi.findEmployeeHistory(id);
+        return backEndApi2.findEmployeeHistory(id);
     }
     public Call<List<AccessAttemptModel>>  findVisitorHistory(@Path("id") String id) {
-        return backEndApi.findVisitorHistory(id);
+        return backEndApi2.findVisitorHistory(id);
     }
-
-
-
 }

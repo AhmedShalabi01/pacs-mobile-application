@@ -184,6 +184,7 @@ public class SignUpActivity extends AppCompatActivity {
                     saveCredentialsToEncryptedPreferences(registrationModel.getEmail(), registrationModel.getPassword(), guestOption);
                     emptyForm();
                     encryptAndSaveAttributesToFile(gson.toJson(response.body()));
+                    Log.i("aatt",gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());

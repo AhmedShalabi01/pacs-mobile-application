@@ -24,6 +24,7 @@ import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
 import org.pacs.pacs_mobile_application.utils.AccessAttemptAdapter;
 import org.pacs.pacs_mobile_application.utils.CustomSharedPreferences;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.ResponseBody;
@@ -33,7 +34,7 @@ import retrofit2.Response;
 
 public class HistoryActivity extends AppCompatActivity {
 
-    private List<AccessAttemptModel> accessAttempts;
+    private List<AccessAttemptModel> accessAttempts = new ArrayList<>();
     private CustomSharedPreferences customSharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,8 @@ public class HistoryActivity extends AppCompatActivity {
 
         initializeSharedPreferences();
 
-        String id = customSharedPreferences.readData("id", "");
+
+        String id = customSharedPreferences.readData("userId", "");
         String userType = customSharedPreferences.readData("user_type", "");
 
         if ("false".equalsIgnoreCase(userType)) {
@@ -57,7 +59,6 @@ public class HistoryActivity extends AppCompatActivity {
             fetchVisitorHistory(id);
         }
 
-        setupRecyclerView();
         setupBottomNavigationView();
 
 
@@ -75,6 +76,14 @@ public class HistoryActivity extends AppCompatActivity {
                 if(response.isSuccessful()) {
                     assert response.body() != null;
                     accessAttempts = response.body();
+                    accessAttempts.forEach(accessAttempt -> {
+                        if (accessAttempt.getDecision().equalsIgnoreCase("true")) {
+                            accessAttempt.setDecision("Granted");
+                        } else {
+                            accessAttempt.setDecision("Revoked");
+                        }
+                    });
+                    setupRecyclerView();
                 } else {
                     handleErrorResponse(response.errorBody());
                 }
@@ -93,6 +102,14 @@ public class HistoryActivity extends AppCompatActivity {
                 if(response.isSuccessful()) {
                     assert response.body() != null;
                     accessAttempts = response.body();
+                    accessAttempts.forEach(accessAttempt -> {
+                        if (accessAttempt.getDecision().equalsIgnoreCase("true")) {
+                            accessAttempt.setDecision("Granted");
+                        } else {
+                            accessAttempt.setDecision("Revoked");
+                        }
+                    });
+                    setupRecyclerView();
                 } else {
                     handleErrorResponse(response.errorBody());
                 }

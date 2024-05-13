@@ -54,8 +54,8 @@ public class MyHostApduService extends HostApduService {
         super.onDestroy();
         Intent serviceIntent = new Intent(this, MyHostApduService.class);
         stopService(serviceIntent);
+        deleteAttributesFile();
     }
-
 
     private String readAttributesFromFile() {
         CryptoManager cryptoManager = new CryptoManager();
@@ -81,7 +81,7 @@ public class MyHostApduService extends HostApduService {
 
             List<String> noncesList = convertStringToList(noncesString);
 
-            if(index<=10) {
+            if(index<10) {
                 nonce = noncesList.get(index);
                 customSharedPreferences.saveData("currentIndex",String.valueOf(index+1));
             } else {
@@ -101,6 +101,17 @@ public class MyHostApduService extends HostApduService {
             Collections.addAll(resultList, items);
         }
         return resultList;
+    }
+
+    private void deleteAttributesFile() {
+        File fileToDelete = new File(getFilesDir(), "secret.txt");
+        if (fileToDelete.exists()) {
+            if (fileToDelete.delete()) {
+                Log.d("File Deletion", "File deleted successfully");
+            } else {
+                Log.e("File Deletion", "Failed to delete the file");
+            }
+        }
     }
 
     private void goToLoginActivity() {
