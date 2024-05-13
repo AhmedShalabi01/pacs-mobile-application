@@ -37,8 +37,8 @@ import retrofit2.http.Path;
 public class BackEndClient {
 
     private static Context applicationContext;
-    private static final String BASE_URL1 = "https://192.168.1.7:8084/login-registration/";
-    private static final String BASE_URL2 = "http://192.168.1.7:8086/access-control/";
+    private static final String BASE_URL1 = "https://192.168.1.58:8084/login-registration/";
+    private static final String BASE_URL2 = "http://192.168.1.58:8086/access-control/";
     private final BackEndApi backEndApi;
     private final BackEndApi backEndApi2;
     private static BackEndClient INSTANCE;

@@ -26,17 +26,23 @@ public class MyHostApduService extends HostApduService {
         Log.d("HCE", "processCommandApdu");
         Log.d("HCE", Arrays.toString(commandApdu));
 
-        String updatedAttributesJson = "6A0F";
+        String updatedAttributesJson = "6A82";
 
         try {
             Gson gson = new Gson();
             String attributesString = readAttributesFromFile();
             JsonObject attributesJson = gson.fromJson(attributesString, JsonObject.class);
+
+            Log.i("HCE", attributesString);
+            Log.i("HCE", attributesJson.toString());
+
             String nonce = fetchAccessNonce();
             JsonObject payload = new JsonObject();
-            payload.addProperty("UAT", attributesJson.toString());
+            payload.add("UAT", attributesJson);
             payload.addProperty("NC", nonce);
             updatedAttributesJson = gson.toJson(payload);
+
+            Log.i("HCE", updatedAttributesJson);
 
         } catch (Exception e) {
             Log.e("Error Parsing Json Object", Objects.requireNonNull(e.getMessage()));
@@ -55,7 +61,6 @@ public class MyHostApduService extends HostApduService {
         super.onDestroy();
         Intent serviceIntent = new Intent(this, MyHostApduService.class);
         stopService(serviceIntent);
-//        deleteAttributesFile();
     }
 
     private String readAttributesFromFile() {
