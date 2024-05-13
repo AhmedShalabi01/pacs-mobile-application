@@ -4,7 +4,10 @@ import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRON
 import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +32,7 @@ import org.pacs.pacs_mobile_application.R;
 import org.pacs.pacs_mobile_application.data.BackEndClient;
 import org.pacs.pacs_mobile_application.utils.CryptoManager;
 import org.pacs.pacs_mobile_application.utils.CustomSharedPreferences;
+import org.pacs.pacs_mobile_application.utils.MyHostApduService;
 import org.pacs.pacs_mobile_application.utils.NonceGenerator;
 import org.pacs.pacs_mobile_application.utils.ValidationPattern;
 import org.pacs.pacs_mobile_application.pojo.requestmodel.LoginModel;
@@ -74,6 +78,29 @@ public class LoginActivity extends AppCompatActivity {
         setupSignInButton();
         setupGuestSwitch();
         setupBiometricPrompt();
+    }
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(MyHostApduService.ACTION_SHOW_TOAST)) {
+                String message = intent.getStringExtra("message");
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            }
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(MyHostApduService.ACTION_SHOW_TOAST);
+        registerReceiver(mReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
     }
 
     private void initializeViews() {

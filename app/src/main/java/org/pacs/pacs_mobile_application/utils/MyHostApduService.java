@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -20,6 +19,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class MyHostApduService extends HostApduService {
+
+    public static final String ACTION_SHOW_TOAST = "com.example.ACTION_SHOW_TOAST";
 
     @Override
     public byte[] processCommandApdu(byte[] commandApdu, Bundle extras) {
@@ -85,8 +86,15 @@ public class MyHostApduService extends HostApduService {
                 nonce = noncesList.get(index);
                 customSharedPreferences.saveData("currentIndex",String.valueOf(index+1));
             } else {
-              Toast.makeText(this,"Key Session is Expired, Please Login again",Toast.LENGTH_LONG).show();
-              goToLoginActivity();
+//              Toast.makeText(this,"Key Session is Expired, Please Login again",Toast.LENGTH_LONG).show();
+//              goToLoginActivity();
+
+                Intent intent = new Intent();
+                intent.setAction(ACTION_SHOW_TOAST);
+                intent.putExtra("message", "Key Session is Expired, Please Login again");
+                sendBroadcast(intent);
+                goToLoginActivity();
+
             }
         } catch (Exception e) {
             Log.e("Error in fetching the nonce", Objects.requireNonNull(e.getMessage()));
