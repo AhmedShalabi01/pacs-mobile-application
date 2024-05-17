@@ -47,6 +47,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(moveToLoginActivity);
         finish();
     }
-
-
 }
