@@ -37,7 +37,7 @@ import retrofit2.http.Path;
 public class BackEndClient {
 
     private static Context applicationContext;
-    private static final String BASE_URL1 = "https://172.30.80.1:8088";
+    private static final String BASE_URL1 = "https:/192.168.1.38:8088";
     private final BackEndApi backEndApi;
     private static BackEndClient INSTANCE;
 
