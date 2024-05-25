@@ -18,20 +18,20 @@ import retrofit2.http.Path;
 
 public interface BackEndApi {
 
-    @POST("employee/register")
+    @POST("/login-registration/employee/register")
      Call<EmployeeAttributesModel> registerEmployee(@Body RegistrationModel registrationModel);
-    @POST("visitor/register")
+    @POST("/login-registration/visitor/register")
      Call<VisitorAttributesModel> registerVisitor(@Body RegistrationModel registrationModel);
-    @POST("employee/login")
+    @POST("/login-registration/employee/login")
      Call<EmployeeAttributesModel> validateEmployee(@Body LoginModel loginModel);
-    @POST("visitor/login")
+    @POST("/login-registration/visitor/login")
      Call<VisitorAttributesModel> validateVisitor(@Body LoginModel loginModel);
-    @GET("employee/find/info/email/{email}")
+    @GET("/login-registration/employee/find/info/email/{email}")
     Call<UserInfoModel> findEmployeeInfo(@Path("email") String email);
-    @GET("visitor/find/info/email/{email}")
+    @GET("/login-registration/visitor/find/info/email/{email}")
      Call<UserInfoModel> findVisitorInfo(@Path("email") String email);
-    @GET("employee/list/history/id/{id}")
+    @GET("/access-control/employee/list/history/id/{id}")
     Call<List<AccessAttemptModel>>  findEmployeeHistory(@Path("id") String id);
-    @GET("visitor/list/history/id/{id}")
+    @GET("/access-control/visitor/list/history/id/{id}")
     Call<List<AccessAttemptModel>> findVisitorHistory(@Path("id") String id);
 }

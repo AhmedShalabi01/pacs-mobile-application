@@ -53,7 +53,7 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText emailEditText, passwordEditText;
-    private boolean guestOption;
+    private boolean guestOption_Switch;
     private final Gson gson = new Gson();
     private BiometricPrompt biometricPrompt;
     private CustomSharedPreferences customSharedPreferences;
@@ -93,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
     private void setupGuestSwitch() {
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch guestSwitch = findViewById(R.id.guest);
-        guestSwitch.setOnCheckedChangeListener((compoundButton, b) -> guestOption = b);
+        guestSwitch.setOnCheckedChangeListener((compoundButton, b) -> guestOption_Switch = b);
     }
 
     private void setupBiometricPrompt() {
@@ -114,18 +114,18 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void processFormFields(){
-        if (guestOption){
+        if (guestOption_Switch){
             if(validateField(emailEditText, ValidationPattern.EMAIL) || validateField(passwordEditText, ValidationPattern.PASSWORD)){
                 return;
             }
             LoginModel loginModel = new LoginModel(emailEditText.getText().toString(), passwordEditText.getText().toString());
-            validateVisitor(loginModel, guestOption);
+            validateVisitor(loginModel, guestOption_Switch);
         } else {
             if(validateField(emailEditText, ValidationPattern.EMAIL) || validateField(passwordEditText, ValidationPattern.PASSWORD)){
                 return;
             }
             LoginModel loginModel = new LoginModel(emailEditText.getText().toString(), passwordEditText.getText().toString());
-            validateEmployee(loginModel ,guestOption);
+            validateEmployee(loginModel , guestOption_Switch);
         }
     }
 

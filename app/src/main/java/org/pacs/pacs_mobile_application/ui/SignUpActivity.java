@@ -46,7 +46,7 @@ import retrofit2.Response;
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText employeeIdEditText, firstNameEditText, lastNameEditText, emailEditText, ssnEditText, passwordEditText, confirmEditText;
-    private boolean guestOption;
+    private boolean guestOption_Switch;
     private CustomSharedPreferences customSharedPreferences;
     private final Gson gson = new Gson();
 
@@ -93,7 +93,7 @@ public class SignUpActivity extends AppCompatActivity {
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch guest = findViewById(R.id.guest);
         guest.setOnCheckedChangeListener((compoundButton, b) -> {
-            guestOption = b;
+            guestOption_Switch = b;
             updateGuestSwitchUI(b);
         });
     }
@@ -118,7 +118,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void processFormFields(){
-        if (guestOption){
+        if (guestOption_Switch){
             if( validateField(firstNameEditText,ValidationPattern.FIRST_NAME) || validateField(lastNameEditText,ValidationPattern.LAST_NAME) ||
                     validateField(ssnEditText,ValidationPattern.SSN) ||
                     validateField(emailEditText,ValidationPattern.EMAIL) || validatePasswordAndConfirm(passwordEditText, confirmEditText)
@@ -130,7 +130,7 @@ public class SignUpActivity extends AppCompatActivity {
                     ssnEditText.getText().toString(),
                     emailEditText.getText().toString(),
                     passwordEditText.getText().toString());
-            registerVisitor(registrationModel, guestOption);
+            registerVisitor(registrationModel, guestOption_Switch);
         } else {
             if( validateField(firstNameEditText,ValidationPattern.FIRST_NAME) || validateField(lastNameEditText,ValidationPattern.LAST_NAME) ||
                     validateField(employeeIdEditText,ValidationPattern.ID) || validateField(ssnEditText,ValidationPattern.SSN) ||
@@ -143,7 +143,7 @@ public class SignUpActivity extends AppCompatActivity {
                     ssnEditText.getText().toString(),
                     emailEditText.getText().toString(),
                     passwordEditText.getText().toString());
-            registerEmployee(registrationModel, guestOption);
+            registerEmployee(registrationModel, guestOption_Switch);
         }
     }
 
@@ -184,7 +184,6 @@ public class SignUpActivity extends AppCompatActivity {
                     saveCredentialsToEncryptedPreferences(registrationModel.getEmail(), registrationModel.getPassword(), guestOption);
                     emptyForm();
                     encryptAndSaveAttributesToFile(gson.toJson(response.body()));
-                    Log.i("aatt",gson.toJson(response.body()));
                     goToHomeActivity();
                 } else {
                     handleErrorResponse(response.errorBody());

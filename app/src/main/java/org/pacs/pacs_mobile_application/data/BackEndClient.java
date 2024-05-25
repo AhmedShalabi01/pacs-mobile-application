@@ -37,15 +37,12 @@ import retrofit2.http.Path;
 public class BackEndClient {
 
     private static Context applicationContext;
-    private static final String BASE_URL1 = "https://192.168.122.3:8084/login-registration/";
-    private static final String BASE_URL2 = "http://192.168.122.3:8086/access-control/";
+    private static final String BASE_URL1 = "https://172.30.80.1:8088";
     private final BackEndApi backEndApi;
-    private final BackEndApi backEndApi2;
     private static BackEndClient INSTANCE;
 
     public BackEndClient(Context context) {
         OkHttpClient.Builder httpClient1 = new OkHttpClient.Builder();
-        OkHttpClient.Builder httpClient2 = new OkHttpClient.Builder();
         try {
 
             InputStream inputStream = context.getResources().openRawResource(R.raw.pacs_system);
@@ -97,14 +94,7 @@ public class BackEndClient {
                 .client(httpClient1.build())
                 .build();
 
-        Retrofit retrofit2 = new Retrofit.Builder()
-                .baseUrl(BASE_URL2)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient2.build())
-                .build();
-
         backEndApi = retrofit1.create(BackEndApi.class);
-        backEndApi2 = retrofit2.create(BackEndApi.class);
     }
     private static String sha1Fingerprint(X509Certificate certificate) {
         try {
@@ -153,9 +143,9 @@ public class BackEndClient {
     }
 
     public Call<List<AccessAttemptModel>>  findEmployeeHistory(@Path("id") String id) {
-        return backEndApi2.findEmployeeHistory(id);
+        return backEndApi.findEmployeeHistory(id);
     }
     public Call<List<AccessAttemptModel>>  findVisitorHistory(@Path("id") String id) {
-        return backEndApi2.findVisitorHistory(id);
+        return backEndApi.findVisitorHistory(id);
     }
 }
