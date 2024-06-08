@@ -92,6 +92,7 @@ public class MyHostApduService extends HostApduService {
                 customSharedPreferences.saveData("currentIndex",String.valueOf(index+1));
             } else {
               Toast.makeText(this,"Key Session is Expired, Please Login again",Toast.LENGTH_LONG).show();
+              deleteAttributesFile();
               goToLoginActivity();
             }
         } catch (Exception e) {

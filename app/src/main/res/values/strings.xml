@@ -5,7 +5,7 @@
     <string name="go_to_sign_in">Already Have an account? Sign In</string>
     <!-- For Sign In Page / Activity -->
     <string name="go_to_sign_up">Not having an account? Sign Up</string>
-    <string name="guest">Guest</string>
+    <string name="guest">Visitor</string>
     <string name="login">Login</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -31,7 +31,7 @@
     <string name="history">History</string>
     <string name="aiddescription">PACS AID</string>
     <string name="servicedesc">PACS Host APDU Service</string>
-    <string name="biometric_authentication_login">Biometric Authentication Login</string>
+    <string name="biometric_authentication_login">Use Biometric Authentication</string>
     <string name="sign_out">Sign Out</string>
     <string name="scan_mobile_on_nfc_reader">Scan mobile on NFC reader</string>
     <string name="access_history">Access History</string>
