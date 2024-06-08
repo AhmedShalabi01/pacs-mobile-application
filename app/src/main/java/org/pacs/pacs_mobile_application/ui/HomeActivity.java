@@ -3,6 +3,7 @@ package org.pacs.pacs_mobile_application.ui;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +25,8 @@ import org.pacs.pacs_mobile_application.pojo.responsemodel.errormodel.ErrorBody;
 import org.pacs.pacs_mobile_application.ui.main.MainActivity;
 import org.pacs.pacs_mobile_application.utils.CustomSharedPreferences;
 
+
+import java.io.File;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -70,6 +73,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void goToMainActivity(View view) {
+        deleteAttributesFile();
         Intent moveToMainActivity = new Intent(HomeActivity.this, MainActivity.class);
         startActivity(moveToMainActivity);
         finish();
@@ -132,6 +136,18 @@ public class HomeActivity extends AppCompatActivity {
             Toast.makeText(HomeActivity.this, "Error parsing error response", Toast.LENGTH_LONG).show();
         }
     }
+
+    private void deleteAttributesFile() {
+        File fileToDelete = new File(getFilesDir(), "secret.txt");
+        if (fileToDelete.exists()) {
+            if (fileToDelete.delete()) {
+                Log.d("File Deletion", "File deleted successfully");
+            } else {
+                Log.e("File Deletion", "Failed to delete the file");
+            }
+        }
+    }
+
     private void setupBottomNavigationView() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
         bottomNavigationView.setSelectedItemId(R.id.bottom_home);
