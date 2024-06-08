@@ -93,6 +93,8 @@ public class MyHostApduService extends HostApduService {
             } else {
               Toast.makeText(this,"Key Session is Expired, Please Login again",Toast.LENGTH_LONG).show();
               deleteAttributesFile();
+              customSharedPreferences.deleteData("noncesList");
+              customSharedPreferences.deleteData("currentIndex");
               goToLoginActivity();
             }
         } catch (Exception e) {

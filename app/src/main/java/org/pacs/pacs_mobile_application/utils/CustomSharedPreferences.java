@@ -56,4 +56,12 @@ public class CustomSharedPreferences {
         }
         return defaultValue;
     }
+
+    public void deleteData(String key) {
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.remove(key);
+            editor.apply();
+        }
+    }
 }

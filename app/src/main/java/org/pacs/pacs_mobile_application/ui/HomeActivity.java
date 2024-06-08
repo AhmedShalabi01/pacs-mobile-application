@@ -74,6 +74,8 @@ public class HomeActivity extends AppCompatActivity {
 
     public void goToMainActivity(View view) {
         deleteAttributesFile();
+        customSharedPreferences.deleteData("noncesList");
+        customSharedPreferences.deleteData("currentIndex");
         Intent moveToMainActivity = new Intent(HomeActivity.this, MainActivity.class);
         startActivity(moveToMainActivity);
         finish();
